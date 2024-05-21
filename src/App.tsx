@@ -1,16 +1,16 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { RouterProvider } from "react-router-dom";
 import "./App.css";
+import router from "./route";
+import { ThemeProvider } from "./components/theme-provider";
 
 function App() {
-  const [count, setCount] = useState(0);
-
-  return (
-    <>
-      <h1>Count: {count}</h1>
-      <Button onClick={() => setCount((count) => count + 1)}>Increment</Button>
-    </>
-  );
+ return (
+  <>
+   <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+    <RouterProvider router={router} />
+   </ThemeProvider>
+  </>
+ );
 }
 
 export default App;
