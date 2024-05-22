@@ -39,6 +39,7 @@ import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ModeToggle } from "@/components/mode-toggle";
 
 export function DashboardLayout() {
  return (
@@ -53,6 +54,7 @@ export function DashboardLayout() {
         <span className="sr-only">Toggle Menu</span>
        </Button>
       </SheetTrigger>
+      <ModeToggle />
       <SheetContent side="left" className="sm:max-w-xs">
        <nav className="grid gap-6 text-lg font-medium">
         <div className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base">
