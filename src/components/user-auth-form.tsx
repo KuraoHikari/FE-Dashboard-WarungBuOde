@@ -11,14 +11,15 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Icons } from "./icons";
+import { useMutation } from "@tanstack/react-query";
+import { loginUser, registrationUser } from "@/services/authServices";
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
  variant: Variant;
 }
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
- const [isLoading, setIsLoading] = React.useState<boolean>(false);
-
+ const [isLoading, setIsLoading] = React.useState(false);
  const formSchema = props.variant === "REGISTER" ? registrationSchema : loginSchema;
 
  const form = useForm<z.infer<typeof formSchema>>({
@@ -37,11 +38,43 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
       },
  });
 
+ const loginMutation = useMutation({
+  mutationFn: (data: z.infer<typeof loginSchema>) => {
+   return loginUser(data);
+  },
+  onSuccess: (data) => {
+   console.log("🚀 ~ UserAuthForm ~ data:", data);
+
+   alert("Transaction created successfully");
+  },
+  onError: async (error) => {
+   console.log("🚀 ~ UserAuthForm ~ error:", error);
+  },
+ });
+
+ const registerMutation = useMutation({
+  mutationFn: (data: z.infer<typeof registrationSchema>) => {
+   return registrationUser(data);
+  },
+  onSuccess: (data) => {
+   alert("Transaction created successfully");
+  },
+  onError: (error) => {
+   console.error(error);
+  },
+ });
+
  // 2. Define a submit handler.
  function onSubmit(values: z.infer<typeof formSchema>) {
   setIsLoading(true);
-  // Do something with the form values.
-  // ✅ This will be type-safe and validated.
+  if (props.variant === "REGISTER") {
+   // @ts-expect-error cause of the ternary above
+   registerMutation.mutate(values);
+  } else {
+   loginMutation.mutate(values);
+  }
+  setIsLoading(false);
+
   console.log(values);
  }
 
