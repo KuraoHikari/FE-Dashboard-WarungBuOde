@@ -8,3 +8,15 @@ export const createWarungSchema = z.object({
 export const updateWarungSchema = z.object({
  location: z.string().optional(),
 });
+
+export type WarungResponseType = {
+ id: number;
+ name: string;
+ location: string;
+ userId: number;
+};
+
+export type getAllWarungsResponseType = WarungResponseType[];
+export type createMyWarungResponseType = WarungResponseType;
+export type updateWarungResponseType = WarungResponseType;
+export type getOneWarungByIdResponseType = WarungResponseType;
