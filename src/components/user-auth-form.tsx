@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 import { Variant } from "@/layout/AuthLayout";
 import { useForm } from "react-hook-form";
-import { loginSchema, registrationSchema } from "@/schemas/authSchema";
+import { loginSchema, loginSchemaResponseType, registrationSchema } from "@/schemas/authSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -13,12 +13,18 @@ import { Input } from "@/components/ui/input";
 import { Icons } from "./icons";
 import { useMutation } from "@tanstack/react-query";
 import { loginUser, registrationUser } from "@/services/authServices";
+import { isHTTPError } from "@/api/baseApi";
+import { useToast } from "./ui/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
  variant: Variant;
 }
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
+ const navigate = useNavigate();
+ const { toast } = useToast();
+
  const [isLoading, setIsLoading] = React.useState(false);
  const formSchema = props.variant === "REGISTER" ? registrationSchema : loginSchema;
 
@@ -39,16 +45,35 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
  });
 
  const loginMutation = useMutation({
-  mutationFn: (data: z.infer<typeof loginSchema>) => {
+  mutationFn: async (data: z.infer<typeof loginSchema>): Promise<loginSchemaResponseType> => {
    return loginUser(data);
   },
-  onSuccess: (data) => {
-   console.log("🚀 ~ UserAuthForm ~ data:", data);
+  onSuccess: (data: { token: string }) => {
+   toast({
+    title: "Login Success",
+    description: "You have successfully logged in",
+   });
 
-   alert("Transaction created successfully");
+   localStorage.setItem("token", data.token);
+
+   navigate("/");
   },
-  onError: async (error) => {
-   console.log("🚀 ~ UserAuthForm ~ error:", error);
+  onError: async (error: unknown) => {
+   if (isHTTPError(error)) {
+    const errorJson = await error.response.json();
+    console.log("🚀 ~ onError: ~ errorJson:", errorJson);
+    toast({
+     title: "Error",
+     variant: "destructive",
+     description: errorJson.message,
+    });
+   } else {
+    toast({
+     title: "Error",
+     variant: "destructive",
+     description: "Failed to login",
+    });
+   }
   },
  });
 
@@ -56,7 +81,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   mutationFn: (data: z.infer<typeof registrationSchema>) => {
    return registrationUser(data);
   },
-  onSuccess: (data) => {
+  onSuccess: () => {
    alert("Transaction created successfully");
   },
   onError: (error) => {
