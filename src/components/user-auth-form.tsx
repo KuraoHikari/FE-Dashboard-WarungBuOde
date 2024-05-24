@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 import { Variant } from "@/layout/AuthLayout";
 import { useForm } from "react-hook-form";
-import { loginSchema, loginSchemaResponseType, registrationSchema } from "@/schemas/authSchema";
+import { loginSchema, loginSchemaResponseType, registrationSchema, registrationSchemaType } from "@/schemas/authSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -61,7 +61,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   onError: async (error: unknown) => {
    if (isHTTPError(error)) {
     const errorJson = await error.response.json();
-    console.log("🚀 ~ onError: ~ errorJson:", errorJson);
+
     toast({
      title: "Error",
      variant: "destructive",
@@ -78,14 +78,33 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
  });
 
  const registerMutation = useMutation({
-  mutationFn: (data: z.infer<typeof registrationSchema>) => {
+  mutationFn: (data: z.infer<typeof registrationSchema>): Promise<registrationSchemaType> => {
    return registrationUser(data);
   },
-  onSuccess: () => {
-   alert("Transaction created successfully");
+  onSuccess: async () => {
+   toast({
+    title: "Register Success",
+    description: "You have successfully Register your Account, Continue to log in",
+   });
+
+   navigate("/login");
   },
-  onError: (error) => {
-   console.error(error);
+  onError: async (error) => {
+   if (isHTTPError(error)) {
+    const errorJson = await error.response.json();
+
+    toast({
+     title: "Error",
+     variant: "destructive",
+     description: errorJson.message,
+    });
+   } else {
+    toast({
+     title: "Error",
+     variant: "destructive",
+     description: "Failed to login",
+    });
+   }
   },
  });
 
@@ -99,8 +118,6 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
    loginMutation.mutate(values);
   }
   setIsLoading(false);
-
-  console.log(values);
  }
 
  return (
