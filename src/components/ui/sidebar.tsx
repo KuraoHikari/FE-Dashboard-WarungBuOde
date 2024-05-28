@@ -1,4 +1,4 @@
-import { Home, LineChart, LogOut, Package, Package2, PanelLeft, Settings, ShoppingCart, Users2 } from "lucide-react";
+import { Home, LogOut, Package, Package2, PanelLeft, Settings, ShoppingCart, Users2 } from "lucide-react";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -6,10 +6,13 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ModeToggle } from "../mode-toggle";
 import { Button } from "./button";
 import { useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Sheet, SheetContent, SheetTrigger } from "./sheet";
+import { menuRoute } from "@/route";
 
 export const DashboardSidebar = () => {
+ const location = useLocation();
+ const route = menuRoute;
  const navigate = useNavigate();
  const toggleLogout = useCallback(() => {
   localStorage.removeItem("token");
@@ -22,51 +25,22 @@ export const DashboardSidebar = () => {
      <Package2 className="h-4 w-4 transition-all group-hover:scale-110" />
      <span className="sr-only">Acme Inc</span>
     </div>
-    <Tooltip>
-     <TooltipTrigger asChild>
-      <div className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8">
-       <Home className="h-5 w-5" />
-       <span className="sr-only">Dashboard</span>
-      </div>
-     </TooltipTrigger>
-     <TooltipContent side="right">Dashboard</TooltipContent>
-    </Tooltip>
-    <Tooltip>
-     <TooltipTrigger asChild>
-      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-accent-foreground transition-colors hover:text-foreground md:h-8 md:w-8">
-       <ShoppingCart className="h-5 w-5" />
-       <span className="sr-only">Orders</span>
-      </div>
-     </TooltipTrigger>
-     <TooltipContent side="right">Orders</TooltipContent>
-    </Tooltip>
-    <Tooltip>
-     <TooltipTrigger asChild>
-      <div className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8">
-       <Package className="h-5 w-5" />
-       <span className="sr-only">Products</span>
-      </div>
-     </TooltipTrigger>
-     <TooltipContent side="right">Products</TooltipContent>
-    </Tooltip>
-    <Tooltip>
-     <TooltipTrigger asChild>
-      <div className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8">
-       <Users2 className="h-5 w-5" />
-       <span className="sr-only">Customers</span>
-      </div>
-     </TooltipTrigger>
-     <TooltipContent side="right">Customers</TooltipContent>
-    </Tooltip>
-    <Tooltip>
-     <TooltipTrigger asChild>
-      <div className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8">
-       <LineChart className="h-5 w-5" />
-       <span className="sr-only">Analytics</span>
-      </div>
-     </TooltipTrigger>
-     <TooltipContent side="right">Analytics</TooltipContent>
-    </Tooltip>
+    {route.map((item, index) => (
+     <Tooltip key={index}>
+      <TooltipTrigger asChild>
+       <Link
+        to={item.path}
+        className={`flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8 ${
+         location.pathname === item.path ? "bg-accent text-accent-foreground" : ""
+        }`}
+       >
+        {item.icon}
+        <span className="sr-only">{item.name}</span>
+       </Link>
+      </TooltipTrigger>
+      <TooltipContent side="right">{item.name}</TooltipContent>
+     </Tooltip>
+    ))}
    </nav>
    <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
     <Popover>
