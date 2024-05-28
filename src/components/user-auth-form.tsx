@@ -19,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
  variant: Variant;
+ toggleVariant: () => void;
 }
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
@@ -87,7 +88,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     description: "You have successfully Register your Account, Continue to log in",
    });
 
-   navigate("/login");
+   props.toggleVariant();
   },
   onError: async (error) => {
    if (isHTTPError(error)) {
@@ -102,7 +103,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     toast({
      title: "Error",
      variant: "destructive",
-     description: "Failed to login",
+     description: "Failed to Register",
     });
    }
   },

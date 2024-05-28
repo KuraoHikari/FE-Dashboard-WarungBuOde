@@ -81,7 +81,7 @@ const AuthLayout = () => {
          : "Enter your email and password to login in to your account"}
        </p>
       </div>
-      <UserAuthForm variant={variant} />
+      <UserAuthForm variant={variant} toggleVariant={toggleVariant} />
       <p className="px-8 text-center text-sm text-muted-foreground">
        By clicking continue, you agree to our{" "}
        <div>

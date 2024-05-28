@@ -9,6 +9,7 @@ export const registrationUser = async (data: z.infer<typeof registrationSchema>)
  }
 
  const json: registrationSchemaType = await response.json();
+ console.log("🚀 ~ registrationUser ~ json:", json);
 
  return json;
 };
