@@ -1,4 +1,4 @@
-import { Home, LogOut, Package, Package2, PanelLeft, Settings, ShoppingCart, Users2 } from "lucide-react";
+import { LogOut, Package2, PanelLeft, Settings } from "lucide-react";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -79,6 +79,8 @@ export const DashboardSidebar = () => {
 };
 
 export const MobileDashboardSidebar = () => {
+ const location = useLocation();
+ const route = menuRoute;
  const navigate = useNavigate();
  const toggleLogout = useCallback(() => {
   localStorage.removeItem("token");
@@ -98,26 +100,18 @@ export const MobileDashboardSidebar = () => {
 
    <SheetContent side="left" className="sm:max-w-xs">
     <nav className="grid gap-6 text-lg font-medium">
-     <div className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base">
-      <Package2 className="h-5 w-5 transition-all group-hover:scale-110" />
-      <span className="sr-only">Acme Inc</span>
-     </div>
-     <div className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
-      <Home className="h-5 w-5" />
-      Dashboard
-     </div>
-     <div className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
-      <ShoppingCart className="h-5 w-5" />
-      Orders
-     </div>
-     <div className="flex items-center gap-4 px-2.5 text-foreground">
-      <Package className="h-5 w-5" />
-      Products
-     </div>
-     <div className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
-      <Users2 className="h-5 w-5" />
-      Customers
-     </div>
+     {route.map((item, index) => (
+      <Link
+       key={index}
+       to={item.path}
+       className={`flex items-center gap-4 px-2.5  ${
+        location.pathname === item.path ? "text-foreground" : "hover:text-foreground text-muted-foreground"
+       }`}
+      >
+       {item.icon}
+       <span>{item.name}</span>
+      </Link>
+     ))}
 
      <div
       onClick={toggleLogout}
