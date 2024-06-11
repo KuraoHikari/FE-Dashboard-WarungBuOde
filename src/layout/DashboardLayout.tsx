@@ -49,6 +49,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Outlet } from "react-router-dom";
 
 export function DashboardLayout() {
   return (
@@ -157,6 +158,7 @@ export function DashboardLayout() {
                 </Button>
               </div>
             </div>
+            <Outlet />
             <TabsContent value="all">
               <Card x-chunk="dashboard-06-chunk-0">
                 <CardHeader>

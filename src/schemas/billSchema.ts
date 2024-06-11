@@ -47,10 +47,6 @@ export type BillResponseType = {
   orders: OrderType[];
 };
 
-export type getAllUserBillResponseType = BillResponseType & {
-  warung: WarungResponseType;
-};
-
 export type getBillByWarungIdResponseType = BillResponseType;
 export type updateBillResponseType = Omit<BillResponseType, "orders">;
 
@@ -64,3 +60,21 @@ export type QueryKeyGetAllBill = [
     approved: boolean;
   }
 ];
+
+export interface FetchBillsParams {
+  warungId: number;
+  page: number;
+  limit: number;
+  search?: string;
+  status?: string;
+  approved?: boolean;
+}
+
+export interface getAllUserBillResponseType {
+  data: BillResponseType & {
+    warung: WarungResponseType;
+  };
+  page: number;
+  totalPages: number;
+  // Tambahkan properti lainnya sesuai kebutuhan
+}

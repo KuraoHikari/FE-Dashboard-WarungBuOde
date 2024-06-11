@@ -1,7 +1,7 @@
 import baseApi from "@/api/baseApi";
 import {
   BillResponseType,
-  QueryKeyGetAllBill,
+  FetchBillsParams,
   createBillSchema,
   getAllUserBillResponseType,
   getBillByWarungIdResponseType,
@@ -24,37 +24,12 @@ export const createBill = async (
 
   return json;
 };
-interface FetchBillsParams {
-  warungId: number;
-  page: number;
-  limit: number;
-  search?: string;
-  status?: string;
-  approved?: boolean;
-}
-
-interface Bill {
-  id: number;
-  total: number;
-  status: string;
-  approved: boolean;
-  customerName: string;
-  createdAt: string;
-  // Tambahkan properti lainnya sesuai kebutuhan
-}
-
-interface FetchBillsResponse {
-  data: Bill[];
-  page: number;
-  totalPages: number;
-  // Tambahkan properti lainnya sesuai kebutuhan
-}
 
 export const getAllUserBill = async ({
   queryKey,
 }: QueryFunctionContext<
   [string, FetchBillsParams]
->): Promise<FetchBillsResponse> => {
+>): Promise<getAllUserBillResponseType> => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_key, { warungId, page, limit, search, status, approved }] = queryKey;
   const searchParams = new URLSearchParams({
@@ -66,13 +41,16 @@ export const getAllUserBill = async ({
     approved: approved?.toString() || "",
   });
   const response = await baseApi.get(`bill/all`, {
-    searchParams,
+    ...searchParams,
+    headers: {
+      token: `${localStorage.getItem("token")}`,
+    },
   });
   if (!response.ok) {
     throw new Error("Failed to fetch bill");
   }
 
-  const json: FetchBillsResponse = await response.json();
+  const json: getAllUserBillResponseType = await response.json();
 
   return json;
 };
@@ -80,7 +58,11 @@ export const getAllUserBill = async ({
 export const getBillByWarungId = async (
   warungId: number
 ): Promise<getBillByWarungIdResponseType> => {
-  const response = await baseApi.get(`bill/${warungId}`);
+  const response = await baseApi.get(`bill/${warungId}`, {
+    headers: {
+      token: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJkZXdhQG1haWwuY29tIiwiaWF0IjoxNzE2MjY2NTEwfQ.hRk8uzWaZvxM7N6u9KXdAL15SbwWqgr5LiF0DJkeRE4`,
+    },
+  });
   if (!response.ok) {
     throw new Error("Failed to fetch bill");
   }

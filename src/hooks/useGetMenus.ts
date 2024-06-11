@@ -1,31 +1,13 @@
-import ky from "ky";
 import { useQuery } from "@tanstack/react-query";
 import { getAllUserBill } from "@/services/billServices";
 
-interface FetchBillsParams {
+interface FetchMenusParams {
   warungId: number;
   page: number;
   limit: number;
   search?: string;
-  status?: string;
-  approved?: boolean;
-}
-
-interface Bill {
-  id: number;
-  total: number;
-  status: string;
-  approved: boolean;
-  customerName: string;
-  createdAt: string;
-  // Tambahkan properti lainnya sesuai kebutuhan
-}
-
-interface FetchBillsResponse {
-  data: Bill[];
-  page: number;
-  totalPages: number;
-  // Tambahkan properti lainnya sesuai kebutuhan
+  category?: string;
+  available?: boolean;
 }
 
 export const useBills = ({
@@ -33,11 +15,11 @@ export const useBills = ({
   page,
   limit,
   search,
-  status,
-  approved,
-}: FetchBillsParams) => {
+  category,
+  available,
+}: FetchMenusParams) => {
   return useQuery({
-    queryKey: ["posts", { warungId, page, limit, search, status, approved }],
+    queryKey: ["menus", { warungId, page, limit, search, category, available }],
     queryFn: getAllUserBill,
   });
 };

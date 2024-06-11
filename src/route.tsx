@@ -7,6 +7,8 @@ import { Pizza, ReceiptText, Store } from "lucide-react";
 import { dashboardLoader } from "./loaders/dashboardLoader";
 import NotFoundPage from "./pages/NotFoundPage";
 import WarungPage from "./pages/WarungPage";
+import MenuPage from "./pages/MenuPage";
+import BillPage from "./pages/BillPage";
 
 export const menuRoute = [
   {
@@ -28,6 +30,12 @@ export const menuRoute = [
     element: <DashboardLayout />,
     icon: <Pizza className="h-5 w-5" />,
     loader: dashboardLoader,
+    children: [
+      {
+        index: true,
+        element: <MenuPage />,
+      },
+    ],
   },
   {
     name: "Bill",
@@ -35,6 +43,12 @@ export const menuRoute = [
     element: <DashboardLayout />,
     icon: <ReceiptText className="h-5 w-5" />,
     loader: dashboardLoader,
+    children: [
+      {
+        index: true,
+        element: <BillPage />,
+      },
+    ],
   },
 ];
 const router = createBrowserRouter([
