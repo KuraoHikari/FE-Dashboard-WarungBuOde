@@ -71,9 +71,10 @@ export interface FetchBillsParams {
 }
 
 export interface getAllUserBillResponseType {
-  data: BillResponseType & {
-    warung: WarungResponseType;
-  };
+  data: BillResponseType &
+    {
+      warung: WarungResponseType;
+    }[];
   page: number;
   totalPages: number;
   // Tambahkan properti lainnya sesuai kebutuhan

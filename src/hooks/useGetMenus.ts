@@ -1,17 +1,8 @@
+import { FetchMenusParams } from "@/schemas/menuSchema";
+import { getAllMenu } from "@/services/menuServices";
 import { useQuery } from "@tanstack/react-query";
-import { getAllUserBill } from "@/services/billServices";
 
-interface FetchMenusParams {
-  warungId: number;
-  page: number;
-  limit: number;
-  search?: string;
-  category?: string;
-  available?: boolean;
-}
-
-export const useBills = ({
-  warungId,
+export const useGetAllUserMenu = ({
   page,
   limit,
   search,
@@ -19,7 +10,7 @@ export const useBills = ({
   available,
 }: FetchMenusParams) => {
   return useQuery({
-    queryKey: ["menus", { warungId, page, limit, search, category, available }],
-    queryFn: getAllUserBill,
+    queryKey: ["user-menus", { page, limit, search, category, available }],
+    queryFn: getAllMenu,
   });
 };

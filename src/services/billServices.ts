@@ -60,7 +60,7 @@ export const getBillByWarungId = async (
 ): Promise<getBillByWarungIdResponseType> => {
   const response = await baseApi.get(`bill/${warungId}`, {
     headers: {
-      token: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJkZXdhQG1haWwuY29tIiwiaWF0IjoxNzE2MjY2NTEwfQ.hRk8uzWaZvxM7N6u9KXdAL15SbwWqgr5LiF0DJkeRE4`,
+      token: `${localStorage.getItem("token")}`,
     },
   });
   if (!response.ok) {
