@@ -4,17 +4,30 @@ import { cn } from "@/lib/utils";
 
 import { Variant } from "@/layout/AuthLayout";
 import { useForm } from "react-hook-form";
-import { loginSchema, loginSchemaResponseType, registrationSchema, registrationSchemaType } from "@/schemas/authSchema";
+import {
+ loginSchema,
+ loginSchemaResponseType,
+ registrationSchema,
+ registrationSchemaType,
+} from "@/schemas/authSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+ Form,
+ FormControl,
+ FormDescription,
+ FormField,
+ FormItem,
+ FormLabel,
+ FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Icons } from "./icons";
+import { Icons } from "../icons";
 import { useMutation } from "@tanstack/react-query";
 import { loginUser, registrationUser } from "@/services/authServices";
 import { isHTTPError } from "@/api/baseApi";
-import { useToast } from "./ui/use-toast";
+import { useToast } from "../ui/use-toast";
 import { useNavigate } from "react-router-dom";
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -27,7 +40,8 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
  const { toast } = useToast();
 
  const [isLoading, setIsLoading] = React.useState(false);
- const formSchema = props.variant === "REGISTER" ? registrationSchema : loginSchema;
+ const formSchema =
+  props.variant === "REGISTER" ? registrationSchema : loginSchema;
 
  const form = useForm<z.infer<typeof formSchema>>({
   resolver: zodResolver(formSchema),
@@ -46,7 +60,9 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
  });
 
  const loginMutation = useMutation({
-  mutationFn: async (data: z.infer<typeof loginSchema>): Promise<loginSchemaResponseType> => {
+  mutationFn: async (
+   data: z.infer<typeof loginSchema>
+  ): Promise<loginSchemaResponseType> => {
    return loginUser(data);
   },
   onSuccess: (data: { token: string }) => {
@@ -57,7 +73,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 
    localStorage.setItem("token", data.token);
 
-   navigate("/");
+   navigate("/warung");
   },
   onError: async (error: unknown) => {
    if (isHTTPError(error)) {
@@ -79,13 +95,16 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
  });
 
  const registerMutation = useMutation({
-  mutationFn: (data: z.infer<typeof registrationSchema>): Promise<registrationSchemaType> => {
+  mutationFn: (
+   data: z.infer<typeof registrationSchema>
+  ): Promise<registrationSchemaType> => {
    return registrationUser(data);
   },
   onSuccess: async () => {
    toast({
     title: "Register Success",
-    description: "You have successfully Register your Account, Continue to log in",
+    description:
+     "You have successfully Register your Account, Continue to log in",
    });
 
    props.toggleVariant();
@@ -138,7 +157,9 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
            <FormControl>
             <Input placeholder="shadcn" {...field} />
            </FormControl>
-           <FormDescription>Your unique username. It must be at least 2 characters long</FormDescription>
+           <FormDescription>
+            Your unique username. It must be at least 2 characters long
+           </FormDescription>
            <FormMessage />
           </FormItem>
          )}
@@ -167,7 +188,10 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           <FormControl>
            <Input type="password" placeholder="shadcn" {...field} />
           </FormControl>
-          <FormDescription> Your password. It must be at least 8 characters long</FormDescription>
+          <FormDescription>
+           {" "}
+           Your password. It must be at least 8 characters long
+          </FormDescription>
           <FormMessage />
          </FormItem>
         )}

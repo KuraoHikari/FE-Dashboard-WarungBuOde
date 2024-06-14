@@ -1,14 +1,30 @@
 import { LogOut, Package2, PanelLeft, Settings } from "lucide-react";
 
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+ Tooltip,
+ TooltipContent,
+ TooltipTrigger,
+} from "@/components/ui/tooltip";
 
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+ Popover,
+ PopoverContent,
+ PopoverTrigger,
+} from "@/components/ui/popover";
 import { ModeToggle } from "../mode-toggle";
 import { Button } from "./button";
 import { useCallback } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Sheet, SheetContent, SheetTrigger } from "./sheet";
 import { menuRoute } from "@/route";
+import {
+ Breadcrumb,
+ BreadcrumbItem,
+ BreadcrumbLink,
+ BreadcrumbList,
+ BreadcrumbPage,
+ BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 export const DashboardSidebar = () => {
  const location = useLocation();
@@ -31,7 +47,9 @@ export const DashboardSidebar = () => {
        <Link
         to={item.path}
         className={`flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8 ${
-         location.pathname === item.path ? "bg-accent text-accent-foreground" : ""
+         location.pathname === item.path
+          ? "bg-accent text-accent-foreground"
+          : ""
         }`}
        >
         {item.icon}
@@ -97,6 +115,19 @@ export const MobileDashboardSidebar = () => {
    <div className="sm:hidden">
     <ModeToggle />
    </div>
+   <Breadcrumb className="flex sm:hidden">
+    <BreadcrumbList>
+     <BreadcrumbItem>
+      <BreadcrumbLink asChild>
+       <div>Dashboard</div>
+      </BreadcrumbLink>
+     </BreadcrumbItem>
+     <BreadcrumbSeparator />
+     <BreadcrumbItem>
+      <BreadcrumbPage>{location.pathname.substring(1)}</BreadcrumbPage>
+     </BreadcrumbItem>
+    </BreadcrumbList>
+   </Breadcrumb>
 
    <SheetContent side="left" className="sm:max-w-xs">
     <nav className="grid gap-6 text-lg font-medium">
@@ -105,7 +136,9 @@ export const MobileDashboardSidebar = () => {
        key={index}
        to={item.path}
        className={`flex items-center gap-4 px-2.5  ${
-        location.pathname === item.path ? "text-foreground" : "hover:text-foreground text-muted-foreground"
+        location.pathname === item.path
+         ? "text-foreground"
+         : "hover:text-foreground text-muted-foreground"
        }`}
       >
        {item.icon}

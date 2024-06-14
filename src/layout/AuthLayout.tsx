@@ -1,5 +1,5 @@
 import { Button, buttonVariants } from "@/components/ui/button";
-import { UserAuthForm } from "@/components/user-auth-form";
+import { UserAuthForm } from "@/components/custom-form/user-auth-form";
 import { cn } from "@/lib/utils";
 import { useCallback, useState } from "react";
 
@@ -17,7 +17,12 @@ const AuthLayout = () => {
  return (
   <>
    <div className="container relative  h-svh flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-    <div className={cn(buttonVariants({ variant: "noHover" }), "absolute right-4 top-4 md:right-8 md:top-8")}>
+    <div
+     className={cn(
+      buttonVariants({ variant: "noHover" }),
+      "absolute right-4 top-4 md:right-8 md:top-8"
+     )}
+    >
      {variant === "LOGIN" ? (
       <p className="me-4"> don't have an account? </p>
      ) : (
@@ -25,11 +30,19 @@ const AuthLayout = () => {
      )}
 
      {variant === "LOGIN" ? (
-      <Button variant={"ghost"} onClick={toggleVariant} className="text-primary">
+      <Button
+       variant={"ghost"}
+       onClick={toggleVariant}
+       className="text-primary"
+      >
        Register
       </Button>
      ) : (
-      <Button variant={"ghost"} onClick={toggleVariant} className="text-primary">
+      <Button
+       variant={"ghost"}
+       onClick={toggleVariant}
+       className="text-primary"
+      >
        Login
       </Button>
      )}
@@ -62,8 +75,8 @@ const AuthLayout = () => {
      <div className="relative z-20 mt-auto">
       <blockquote className="space-y-2">
        <p className="text-lg">
-        &ldquo;Dapatkan semua yang Anda butuhkan untuk mengembangkan bisnis kuliner Anda di satu aplikasi Waung Bu
-        Ode.&rdquo;
+        &ldquo;Dapatkan semua yang Anda butuhkan untuk mengembangkan bisnis
+        kuliner Anda di satu aplikasi Waung Bu Ode.&rdquo;
        </p>
       </blockquote>
      </div>
@@ -85,8 +98,13 @@ const AuthLayout = () => {
       <p className="px-8 text-center text-sm text-muted-foreground">
        By clicking continue, you agree to our{" "}
        <div>
-        <span className="underline underline-offset-4 hover:text-primary">Terms of Service</span> and{" "}
-        <span className="underline underline-offset-4 hover:text-primary">Privacy Policy</span>
+        <span className="underline underline-offset-4 hover:text-primary">
+         Terms of Service
+        </span>{" "}
+        and{" "}
+        <span className="underline underline-offset-4 hover:text-primary">
+         Privacy Policy
+        </span>
        </div>
       </p>
      </div>

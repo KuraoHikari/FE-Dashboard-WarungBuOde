@@ -2,15 +2,34 @@ import baseApi from "@/api/baseApi";
 import {
  createMyWarungResponseType,
  createWarungSchema,
+ FetchWarungsParams,
  getAllWarungsResponseType,
  getOneWarungByIdResponseType,
  updateWarungResponseType,
  updateWarungSchema,
 } from "@/schemas/warungSchema";
+import { QueryFunctionContext } from "@tanstack/react-query";
 import { z } from "zod";
 
-export const getAllWarungs = async (): Promise<getAllWarungsResponseType> => {
- const response = await baseApi.get(`warung`);
+export const getAllWarungs = async ({
+ queryKey,
+}: QueryFunctionContext<
+ [string, FetchWarungsParams]
+>): Promise<getAllWarungsResponseType> => {
+ // eslint-disable-next-line @typescript-eslint/no-unused-vars
+ const [_key, { page, limit, search }] = queryKey;
+
+ const searchParams = new URLSearchParams({
+  page: page.toString(),
+  limit: limit.toString(),
+  search: search || "",
+ });
+ const response = await baseApi.get(`warung`, {
+  ...searchParams,
+  headers: {
+   token: `${localStorage.getItem("token")}`,
+  },
+ });
  if (!response.ok) {
   throw new Error("Failed to create warung");
  }
@@ -20,7 +39,9 @@ export const getAllWarungs = async (): Promise<getAllWarungsResponseType> => {
  return json;
 };
 
-export const createMyWarung = async (data: z.infer<typeof createWarungSchema>): Promise<createMyWarungResponseType> => {
+export const createMyWarung = async (
+ data: z.infer<typeof createWarungSchema>
+): Promise<createMyWarungResponseType> => {
  const response = await baseApi.post(`warung`, { json: data });
  if (!response.ok) {
   throw new Error("Failed to create warung");
@@ -45,7 +66,9 @@ export const editMyWarungById = async (
  return json;
 };
 
-export const getOneWarungById = async (warungId: number): Promise<getOneWarungByIdResponseType> => {
+export const getOneWarungById = async (
+ warungId: number
+): Promise<getOneWarungByIdResponseType> => {
  const response = await baseApi.get(`warung/${warungId}`);
  if (!response.ok) {
   throw new Error("Failed to get warung");
