@@ -15,22 +15,35 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import React from "react";
-import { createWarungSchema } from "@/schemas/warungSchema";
+import {
+  WarungResponseType,
+  createMyWarungResponseType,
+  createWarungSchema,
+} from "@/schemas/warungSchema";
 import { Icons } from "../icons";
 import { useToast } from "../ui/use-toast";
 import { LocateFixed } from "lucide-react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import { isHTTPError } from "@/api/baseApi";
+import { createMyWarung } from "@/services/warungServices";
+import { useMutation } from "@tanstack/react-query";
 
 interface CreateWarungFormProps extends React.HTMLAttributes<HTMLDivElement> {
   open: boolean;
   setopen: (open: boolean) => void;
+  refetch: () => void; // Add this line
 }
 interface Position {
   lat: number;
   lng: number;
 }
 
-const CreateWarungForm = ({ className, ...props }: CreateWarungFormProps) => {
+const CreateWarungForm = ({
+  className,
+  setopen,
+  refetch,
+  ...rest
+}: CreateWarungFormProps) => {
   const { toast } = useToast();
   const [position, setPosition] = React.useState<Position | null>(null);
 
@@ -70,17 +83,50 @@ const CreateWarungForm = ({ className, ...props }: CreateWarungFormProps) => {
       }
     );
   };
+  const createWarungMutation = useMutation({
+    mutationFn: async (
+      data: z.infer<typeof createWarungSchema>
+    ): Promise<createMyWarungResponseType> => {
+      return createMyWarung(data);
+    },
+    onError: async (error) => {
+      console.log("🚀 ~ onError: ~ error:", error);
+      if (isHTTPError(error)) {
+        const errorJson = await error.response.json();
+
+        toast({
+          title: "Error",
+          variant: "destructive",
+          description: errorJson.message,
+        });
+      } else {
+        toast({
+          title: "Error",
+          variant: "destructive",
+          description: "Failed to Register",
+        });
+      }
+    },
+    onSuccess: () => {
+      toast({
+        title: "Create Warung Success",
+        description: "You have successfully create your Warung",
+      });
+      form.reset();
+      refetch();
+      setopen(false);
+    },
+  });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    console.log(values);
+    createWarungMutation.mutate(values);
 
-    props.setopen(false);
     setIsLoading(false);
   }
 
   return (
-    <div className={cn("grid gap-6", className)} {...props}>
+    <div className={cn("grid gap-6", className)} {...rest}>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="grid gap-2">

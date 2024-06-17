@@ -60,7 +60,7 @@ const WarungPage = () => {
   const [open, setOpen] = useState<boolean>(false);
   // Get the map instance
 
-  const { data, isLoading, error } = useGetAllUserWarung({
+  const { data, isLoading, error, refetch } = useGetAllUserWarung({
     page: 1,
     limit: 10,
     search: "",
@@ -128,7 +128,11 @@ const WarungPage = () => {
                       Add new warung to your list.
                     </DialogDescription>
                   </DialogHeader>
-                  <CreateWarungForm open={open} setopen={setOpen} />
+                  <CreateWarungForm
+                    open={open}
+                    setopen={setOpen}
+                    refetch={refetch}
+                  />
                 </DialogContent>
               </Dialog>
             </CardHeader>
