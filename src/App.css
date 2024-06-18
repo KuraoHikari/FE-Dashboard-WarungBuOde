@@ -1,0 +1,14 @@
+.marquee {
+ display: inline-block;
+ white-space: nowrap;
+ animation: marquee 10s linear infinite; /* Adjust the duration as needed */
+}
+
+@keyframes marquee {
+ from {
+  transform: translateX(0%);
+ }
+ to {
+  transform: translateX(-20%);
+ }
+}

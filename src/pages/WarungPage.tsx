@@ -1,43 +1,49 @@
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
+ Card,
+ CardContent,
+ CardDescription,
+ CardFooter,
+ CardHeader,
+ CardTitle,
 } from "@/components/ui/card";
 
-import { LocateFixed, MoreHorizontal, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, MoreHorizontal, Plus } from "lucide-react";
 
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+ Dialog,
+ DialogContent,
+ DialogDescription,
+ DialogHeader,
+ DialogTitle,
+ DialogTrigger,
 } from "@/components/ui/dialog";
+import { useLocation } from "react-router-dom";
+
+import {
+ Pagination,
+ PaginationContent,
+ PaginationItem,
+} from "@/components/ui/pagination";
+
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 import { Button } from "@/components/ui/button";
 
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
+ DropdownMenu,
+ DropdownMenuContent,
+ DropdownMenuItem,
+ DropdownMenuLabel,
+ DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+ Table,
+ TableBody,
+ TableCell,
+ TableHead,
+ TableHeader,
+ TableRow,
 } from "@/components/ui/table";
 
 import { Tabs, TabsContent } from "@/components/ui/tabs";
@@ -45,205 +51,259 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { useGetAllUserWarung } from "@/hooks/useGetWarungs";
 import { useState } from "react";
 
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import CreateWarungForm from "@/components/custom-form/create-warung-form";
-
-interface Position {
-  lat: number;
-  lng: number;
-}
+import EditWarungForm from "@/components/custom-form/edit-warung-form";
+import { createMyWarungResponseType } from "@/schemas/warungSchema";
 
 const WarungPage = () => {
-  const [position, setPosition] = useState<Position | null>(null);
-  const [locationLink, setLocationLink] = useState<string>("");
-  const [open, setOpen] = useState<boolean>(false);
-  // Get the map instance
+ const location = useLocation();
+ const searchParams = new URLSearchParams(location.search);
 
-  const { data, isLoading, error, refetch } = useGetAllUserWarung({
-    page: 1,
-    limit: 10,
-    search: "",
-  });
+ const [open, setOpen] = useState<boolean>(false);
+ const [editOpen, setEditOpen] = useState<boolean>(false);
+ const [searchQuery, setSearchQuery] = useState<string>("");
+ const [warungEdit, setWarungEdit] = useState<createMyWarungResponseType>({
+  id: 0,
+  name: "",
+  location: "",
+  userId: 0,
+ });
+ const [page, setPage] = useState<number>(
+  parseInt(searchParams.get("page") || "1", 10)
+ );
+ //ignore
+ const [limit] = useState<number>(
+  parseInt(searchParams.get("limit") || "10", 10)
+ );
 
-  if (isLoading) return "Loading...";
-  if (error) return "An error has occurred: " + error.message;
+ const editWarung = (
+  e: React.MouseEvent<HTMLButtonElement | HTMLDivElement>,
+  warung: createMyWarungResponseType
+ ) => {
+  e.preventDefault();
+  console.log(warung);
+  setWarungEdit(warung);
+  setEditOpen(true);
+ };
 
-  const MapClickHandler = () => {
-    useMapEvents({
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      click(e: any) {
-        const newPosition: Position = e.latlng;
-        setPosition(newPosition);
+ // Parse query parameters
 
-        const googleMapsLink = `https://www.google.com/maps?q=${newPosition.lat},${newPosition.lng}`;
+ // TypeScript version of updateSearchQuery function
 
-        setLocationLink(googleMapsLink);
-      },
-    });
-    return null;
-  };
+ const { data, isLoading, error, refetch } = useGetAllUserWarung({
+  page: page,
+  limit: limit,
+  search: searchQuery,
+ });
 
-  const handleLocation = () => {
-    navigator.geolocation.getCurrentPosition(
-      (position: GeolocationPosition) => {
-        const { latitude, longitude } = position.coords;
-        const newPosition: Position = { lat: latitude, lng: longitude };
-        setPosition(newPosition);
-        const googleMapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
-        setLocationLink(googleMapsLink);
-      }
-    );
-  };
+ const previousPage = () => {
+  setPage(page - 1);
+ };
 
-  return (
-    <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
-      <Tabs defaultValue="all">
-        <TabsContent value="all">
-          <Card x-chunk="dashboard-06-chunk-0">
-            <CardHeader className="">
-              <Dialog open={open} onOpenChange={setOpen}>
-                <div className="flex items-center gap-2 justify-between">
-                  <div>
-                    <CardTitle>Warung</CardTitle>
-                    <CardDescription className="mt-2">
-                      Manage your warung and view their performance.
-                    </CardDescription>
-                  </div>
-                  <DialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      onSelect={(e) => e.preventDefault()}
-                    >
-                      <Plus className="h-4 w-4 me-2" />
-                      Add Warung
-                    </Button>
-                  </DialogTrigger>
-                </div>
+ const nextPage = () => {
+  setPage(page + 1);
+ };
 
-                <DialogContent className="sm:max-w-[825px]">
+ if (error) return "An error has occurred: " + error.message;
+
+ return (
+  <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
+   <Tabs defaultValue="all">
+    <TabsContent value="all">
+     <Card x-chunk="dashboard-06-chunk-0">
+      <CardHeader className="">
+       <Dialog open={open} onOpenChange={setOpen}>
+        <div className="sm:flex items-center gap-2 justify-between">
+         <div>
+          <CardTitle>Warung</CardTitle>
+          <CardDescription className="mt-2">
+           Manage your warung and view their performance.
+          </CardDescription>
+          <Input
+           className="mt-2"
+           type="text"
+           placeholder="Search"
+           value={searchQuery} // Bind the input value to the searchQuery state
+           onChange={(e) => setSearchQuery(e.target.value)}
+          />
+         </div>
+         <DialogTrigger asChild>
+          <Button
+           variant="outline"
+           onSelect={(e) => e.preventDefault()}
+           className="w-full mt-2 sm:w-fit sm:mt-0"
+          >
+           <Plus className="h-4 w-4 me-2" />
+           Add Warung
+          </Button>
+         </DialogTrigger>
+        </div>
+
+        <DialogContent className="sm:max-w-[825px]">
+         <DialogHeader>
+          <DialogTitle>Add Warung</DialogTitle>
+          <DialogDescription>Add new warung to your list.</DialogDescription>
+         </DialogHeader>
+         <CreateWarungForm open={open} setopen={setOpen} refetch={refetch} />
+        </DialogContent>
+       </Dialog>
+      </CardHeader>
+      <CardContent>
+       {!isLoading ? (
+        <>
+         <Table className="hidden sm:table w-full">
+          <TableHeader>
+           <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Location</TableHead>
+
+            <TableHead>
+             <span className="sr-only">Actions</span>
+            </TableHead>
+           </TableRow>
+          </TableHeader>
+          <TableBody>
+           {data?.data?.map((warung) => (
+            <TableRow key={warung.id}>
+             <TableCell className="font-medium">{warung.name}</TableCell>
+             <TableCell className="font-medium">{warung.location}</TableCell>
+             <TableCell>
+              <DropdownMenu>
+               <DropdownMenuTrigger asChild>
+                <Button aria-haspopup="true" size="icon" variant="ghost">
+                 <MoreHorizontal className="h-4 w-4" />
+                 <span className="sr-only">Toggle menu</span>
+                </Button>
+               </DropdownMenuTrigger>
+               <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <Dialog open={editOpen} onOpenChange={setEditOpen}>
+                 <DialogTrigger asChild>
+                  <DropdownMenuItem
+                   onClick={(e) => {
+                    editWarung(e, warung);
+                   }}
+                  >
+                   Edit
+                  </DropdownMenuItem>
+                 </DialogTrigger>
+                 <DialogContent className="sm:max-w-[825px]">
                   <DialogHeader>
-                    <DialogTitle>Add Warung</DialogTitle>
-                    <DialogDescription>
-                      Add new warung to your list.
-                    </DialogDescription>
+                   <DialogTitle>Edit Warung</DialogTitle>
+                   <DialogDescription>
+                    Edit your warung information.
+                   </DialogDescription>
                   </DialogHeader>
-                  <CreateWarungForm
-                    open={open}
-                    setopen={setOpen}
-                    refetch={refetch}
+                  <EditWarungForm
+                   open={editOpen}
+                   setopen={setEditOpen}
+                   refetch={refetch}
+                   warung={warungEdit}
                   />
-                </DialogContent>
-              </Dialog>
+                 </DialogContent>
+                </Dialog>
+               </DropdownMenuContent>
+              </DropdownMenu>
+             </TableCell>
+            </TableRow>
+           ))}
+          </TableBody>
+         </Table>
+         <div className="sm:hidden ">
+          {data?.data?.map((warung) => (
+           <Card key={warung.id} className="my-2">
+            <CardHeader>
+             <CardTitle>{warung.name}</CardTitle>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Location</TableHead>
-
-                    <TableHead>
-                      <span className="sr-only">Actions</span>
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data?.data?.map((warung) => (
-                    <TableRow key={warung.id}>
-                      <TableCell className="font-medium">
-                        {warung.name}
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        {warung.location}
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              aria-haspopup="true"
-                              size="icon"
-                              variant="ghost"
-                            >
-                              <MoreHorizontal className="h-4 w-4" />
-                              <span className="sr-only">Toggle menu</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <DropdownMenuItem
-                                  onSelect={(e) => e.preventDefault()}
-                                >
-                                  Edit
-                                </DropdownMenuItem>
-                              </DialogTrigger>
-                              <DialogContent className="sm:max-w-[425px]">
-                                <DialogHeader>
-                                  <DialogTitle>Edit profile</DialogTitle>
-                                  <DialogDescription>
-                                    Make changes to your profile here. Click
-                                    save when you're done.
-                                  </DialogDescription>
-                                </DialogHeader>
-                                <div className="grid gap-4 py-4">
-                                  <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label
-                                      htmlFor="name"
-                                      className="text-right"
-                                    >
-                                      Name
-                                    </Label>
-                                    <Input
-                                      id="name"
-                                      defaultValue="Pedro Duarte"
-                                      className="col-span-3"
-                                    />
-                                  </div>
-                                  <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label
-                                      htmlFor="username"
-                                      className="text-right"
-                                    >
-                                      Username
-                                    </Label>
-                                    <Input
-                                      id="username"
-                                      defaultValue="@peduarte"
-                                      className="col-span-3"
-                                    />
-                                  </div>
-                                </div>
-                                <DialogFooter>
-                                  <Button type="submit">Save changes</Button>
-                                </DialogFooter>
-                              </DialogContent>
-                            </Dialog>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+             <div className="">
+              <p className="">{warung.location}</p>
+             </div>
             </CardContent>
             <CardFooter>
-              <div className="text-xs text-muted-foreground">
-                Showing{" "}
-                {data?.data?.length !== 0 ? (
-                  <strong>1-{data?.data?.length}</strong>
-                ) : (
-                  "0"
-                )}{" "}
-                of <strong>{data?.total}</strong> warung
-              </div>
+             <Dialog open={editOpen} onOpenChange={setEditOpen}>
+              <DialogTrigger asChild>
+               <Button
+                variant={"outline"}
+                className="w-full"
+                onClick={(e) => {
+                 editWarung(e, warung);
+                }}
+               >
+                Edit Warung
+               </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[825px]">
+               <DialogHeader>
+                <DialogTitle>Edit Warung</DialogTitle>
+                <DialogDescription>
+                 Edit your warung information.
+                </DialogDescription>
+               </DialogHeader>
+               <EditWarungForm
+                open={editOpen}
+                setopen={setEditOpen}
+                refetch={refetch}
+                warung={warungEdit}
+               />
+              </DialogContent>
+             </Dialog>
             </CardFooter>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </main>
-  );
+           </Card>
+          ))}
+         </div>
+        </>
+       ) : (
+        "Loading...."
+       )}
+      </CardContent>
+      <CardFooter>
+       <div className="text-xs text-muted-foreground">
+        Showing{" "}
+        {data?.data?.length !== 0 ? (
+         <strong>1-{data?.data?.length}</strong>
+        ) : (
+         "0"
+        )}{" "}
+        of <strong>{data?.total}</strong> warung
+       </div>
+
+       <Pagination>
+        <PaginationContent>
+         <PaginationItem>
+          <Button variant="ghost" onClick={previousPage} disabled={page <= 1}>
+           <ChevronLeft className="h-4 w-4" />
+          </Button>
+         </PaginationItem>
+         {data?.totalPages &&
+          Array.from({ length: data?.totalPages }, (_, index) => (
+           <Button
+            variant={data?.page !== index + 1 ? "ghost" : "outline"}
+            onClick={() => setPage(index + 1)}
+            key={index}
+           >
+            {index + 1}
+           </Button>
+          ))}
+
+         <PaginationItem>
+          <Button
+           variant="ghost"
+           onClick={nextPage}
+           disabled={data?.totalPages ? page >= data?.totalPages : true}
+          >
+           <ChevronRight className="h-4 w-4" />
+          </Button>
+         </PaginationItem>
+        </PaginationContent>
+       </Pagination>
+      </CardFooter>
+     </Card>
+    </TabsContent>
+   </Tabs>
+  </main>
+ );
 };
 
 export default WarungPage;

@@ -7,6 +7,7 @@ export const createMenuSchema = z.object({
  desc: z.string(),
  available: z.coerce.boolean(),
  category: z.string(),
+ image: z.instanceof(File).optional(),
 });
 
 export const MenuSchema = z.object({
@@ -39,23 +40,21 @@ export type MenuResponseType = {
  category: string;
  warungId: number;
  userId: number;
+ warung: WarungResponseType;
 };
 
 export type getAllMenuResponseType = {
- data: MenuResponseType &
-  {
-   warung: WarungResponseType;
-  }[];
+ data: MenuResponseType[];
  page: number;
  totalPages: number;
  total: number;
 };
 
-export type updateMenuResponseType = MenuResponseType;
+export type updateMenuResponseType = Omit<MenuResponseType, "warung">;
 
-export type updateMenuAvailableResponseType = MenuResponseType;
+export type updateMenuAvailableResponseType = Omit<MenuResponseType, "warung">;
 
-export type getOneMenuByIdResponseType = MenuResponseType;
+export type getOneMenuByIdResponseType = Omit<MenuResponseType, "warung">;
 
 export interface FetchMenusParams {
  page: number;

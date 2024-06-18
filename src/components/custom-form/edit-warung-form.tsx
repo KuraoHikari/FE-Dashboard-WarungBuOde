@@ -17,41 +17,43 @@ import { Button } from "@/components/ui/button";
 import React from "react";
 import {
  createMyWarungResponseType,
- createWarungSchema,
+ updateWarungSchema,
 } from "@/schemas/warungSchema";
 import { Icons } from "../icons";
 import { useToast } from "../ui/use-toast";
 import { LocateFixed } from "lucide-react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import { isHTTPError } from "@/api/baseApi";
-import { createMyWarung } from "@/services/warungServices";
+import { editMyWarungById } from "@/services/warungServices";
 import { useMutation } from "@tanstack/react-query";
 
-interface CreateWarungFormProps extends React.HTMLAttributes<HTMLDivElement> {
+interface EditWarungFormProps extends React.HTMLAttributes<HTMLDivElement> {
  open: boolean;
  setopen: (open: boolean) => void;
  refetch: () => void; // Add this line
+ warung: createMyWarungResponseType;
 }
 interface Position {
  lat: number;
  lng: number;
 }
 
-const CreateWarungForm = ({
+const EditWarungForm = ({
  className,
  setopen,
  refetch,
+ warung,
+
  ...rest
-}: CreateWarungFormProps) => {
+}: EditWarungFormProps) => {
  const { toast } = useToast();
  const [position, setPosition] = React.useState<Position | null>(null);
 
  const [isLoading, setIsLoading] = React.useState(false);
- const formSchema = createWarungSchema;
+ const formSchema = updateWarungSchema;
  const form = useForm<z.infer<typeof formSchema>>({
   resolver: zodResolver(formSchema),
   defaultValues: {
-   name: "",
    location: "",
   },
  });
@@ -80,11 +82,11 @@ const CreateWarungForm = ({
    form.setValue("location", googleMapsLink);
   });
  };
- const createWarungMutation = useMutation({
+ const editWarungMutation = useMutation({
   mutationFn: async (
-   data: z.infer<typeof createWarungSchema>
+   data: z.infer<typeof updateWarungSchema>
   ): Promise<createMyWarungResponseType> => {
-   return createMyWarung(data);
+   return editMyWarungById(data, warung.id);
   },
   onError: async (error) => {
    if (isHTTPError(error)) {
@@ -99,14 +101,14 @@ const CreateWarungForm = ({
     toast({
      title: "Error",
      variant: "destructive",
-     description: "Failed to Create Warung",
+     description: "Failed to Edit Warung",
     });
    }
   },
   onSuccess: () => {
    toast({
-    title: "Create Warung Success",
-    description: "You have successfully create your Warung",
+    title: "Edit Warung Success",
+    description: "You have successfully edit your Warung",
    });
    form.reset();
    refetch();
@@ -116,8 +118,7 @@ const CreateWarungForm = ({
 
  function onSubmit(values: z.infer<typeof formSchema>) {
   setIsLoading(true);
-  createWarungMutation.mutate(values);
-
+  editWarungMutation.mutate(values);
   setIsLoading(false);
  }
 
@@ -127,20 +128,6 @@ const CreateWarungForm = ({
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
      <div className="grid gap-2">
       <div className="grid gap-1">
-       <FormField
-        control={form.control}
-        name="name"
-        render={({ field }) => (
-         <FormItem>
-          <FormLabel>Warung Name</FormLabel>
-          <FormControl>
-           <Input type="text" placeholder="bu-ode" {...field} />
-          </FormControl>
-          <FormDescription>Your warung name</FormDescription>
-          <FormMessage />
-         </FormItem>
-        )}
-       />
        <FormField
         control={form.control}
         name="location"
@@ -198,4 +185,4 @@ const CreateWarungForm = ({
  );
 };
 
-export default CreateWarungForm;
+export default EditWarungForm;
