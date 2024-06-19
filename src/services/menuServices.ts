@@ -18,7 +18,23 @@ export const createMenu = async (
  data: z.infer<typeof createMenuSchema>,
  warungId: number
 ): Promise<MenuResponseType> => {
- const response = await baseApi.post(`menu/${warungId}`, { json: data });
+ //i want to add header and use multipart/form-data
+ const formData = new FormData();
+ formData.append("title", data.title);
+ formData.append("price", String(data.price));
+ formData.append("desc", data.desc);
+ formData.append("category", data.category);
+ formData.append("available", String(data.available));
+ if (data.image) {
+  formData.append("image", data.image);
+ }
+ const response = await baseApi.post(`menu/${warungId}`, {
+  body: formData,
+  headers: {
+   token: `${localStorage.getItem("token")}`,
+  },
+ });
+ //  const response = await baseApi.post(`menu/${warungId}`, { json: data });
  if (!response.ok) {
   throw new Error("Failed to create menu");
  }
@@ -75,9 +91,18 @@ export const updateMenu = async (
  warungId: number,
  menuId: number
 ): Promise<updateMenuResponseType> => {
+ console.log(
+  "🚀 ~ file: menuServices.ts ~ line 86 ~ updateMenu ~ data",
+  warungId,
+  menuId
+ );
  const response = await baseApi.patch(`menu/${warungId}/${menuId}`, {
   json: data,
+  headers: {
+   token: `${localStorage.getItem("token")}`,
+  },
  });
+ console.log(response);
  if (!response.ok) {
   throw new Error("Failed to update menu");
  }

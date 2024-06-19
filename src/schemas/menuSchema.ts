@@ -8,6 +8,7 @@ export const createMenuSchema = z.object({
  available: z.coerce.boolean(),
  category: z.string(),
  image: z.instanceof(File).optional(),
+ warungId: z.string(),
 });
 
 export const MenuSchema = z.object({

@@ -67,6 +67,8 @@ import { useState } from "react";
 import { MenuResponseType } from "@/schemas/menuSchema";
 import { Input } from "@/components/ui/input";
 import CreateMenuForm from "@/components/custom-form/create-menu-form";
+import { useGetAllUserWarung } from "@/hooks/useGetWarungs";
+import EditMenuForm from "@/components/custom-form/edit-menu-form";
 
 const MenuPage = () => {
  const location = useLocation();
@@ -101,6 +103,11 @@ const MenuPage = () => {
   search: searchQuery,
   category: "",
   available: undefined,
+ });
+
+ const { data: warungs } = useGetAllUserWarung({
+  page: 1,
+  limit: 100,
  });
 
  const editMenu = (
@@ -165,7 +172,12 @@ const MenuPage = () => {
           <DialogTitle>Add Menu</DialogTitle>
           <DialogDescription>Add new menu to your list.</DialogDescription>
          </DialogHeader>
-         <CreateMenuForm open={open} setopen={setOpen} refetch={refetch} />
+         <CreateMenuForm
+          warungs={warungs?.data}
+          open={open}
+          setopen={setOpen}
+          refetch={refetch}
+         />
         </DialogContent>
        </Dialog>
       </CardHeader>
@@ -279,17 +291,17 @@ const MenuPage = () => {
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[825px]">
                  <DialogHeader>
-                  <DialogTitle>Edit Warung</DialogTitle>
+                  <DialogTitle>Edit Menu</DialogTitle>
                   <DialogDescription>
-                   Edit your warung information.
+                   Edit your menu information.
                   </DialogDescription>
                  </DialogHeader>
-                 {/* <EditWarungForm
+                 <EditMenuForm
+                  menu={menuEdit}
                   open={editOpen}
                   setopen={setEditOpen}
                   refetch={refetch}
-                  warung={warungEdit}
-                 /> */}
+                 />
                 </DialogContent>
                </Dialog>
               </DropdownMenuContent>
