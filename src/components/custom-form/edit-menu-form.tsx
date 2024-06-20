@@ -68,7 +68,6 @@ const EditMenuForm = ({
    return updateMenu(data, menu.warungId, menu.id);
   },
   onError: async (error) => {
-   console.log("🚀 ~ onError: ~ error:", error);
    if (isHTTPError(error)) {
     const errorJson = await error.response.json();
 

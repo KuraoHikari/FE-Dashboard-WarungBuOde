@@ -217,7 +217,7 @@ const WarungPage = () => {
              <CardTitle>{warung.name}</CardTitle>
             </CardHeader>
             <CardContent>
-             <div className="">
+             <div className="overflow-hidden max-w-[250px]">
               <p className="">{warung.location}</p>
              </div>
             </CardContent>
@@ -234,7 +234,7 @@ const WarungPage = () => {
                 Edit Warung
                </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[825px]">
+              <DialogContent className="max-w-[350px] sm:max-w-[825px]">
                <DialogHeader>
                 <DialogTitle>Edit Warung</DialogTitle>
                 <DialogDescription>

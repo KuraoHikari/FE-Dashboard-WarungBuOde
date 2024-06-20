@@ -3,7 +3,6 @@ import { getAllUserBill } from "@/services/billServices";
 import { FetchBillsParams } from "@/schemas/billSchema";
 
 export const useGetAllBillsByWarungId = ({
- warungId,
  page,
  limit,
  search,
@@ -11,7 +10,7 @@ export const useGetAllBillsByWarungId = ({
  approved,
 }: FetchBillsParams) => {
  return useQuery({
-  queryKey: ["user-bills", { warungId, page, limit, search, status, approved }],
+  queryKey: ["user-bills", { page, limit, search, status, approved }],
   queryFn: getAllUserBill,
  });
 };

@@ -50,7 +50,6 @@ export const getAllMenu = async ({
 >): Promise<getAllMenuResponseType> => {
  // eslint-disable-next-line @typescript-eslint/no-unused-vars
  const [_key, { page, limit, search, category, available }] = queryKey;
- console.log("🚀 ~ available:", available);
 
  const searchParams = new URLSearchParams({
   page: page.toString(),

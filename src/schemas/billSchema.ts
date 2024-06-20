@@ -1,5 +1,6 @@
-import { z } from "zod";
+import { string, z } from "zod";
 import { WarungResponseType } from "./warungSchema";
+import { MenuResponseType } from "./menuSchema";
 
 const Order = z.object({
  menuId: z.number(),
@@ -33,6 +34,7 @@ export type OrderType = {
  quantity: number;
  total: number;
  createdAt: string;
+ menu: MenuResponseType;
 };
 
 export type BillResponseType = {
@@ -45,10 +47,14 @@ export type BillResponseType = {
  userId: number;
  warungId: number;
  orders: OrderType[];
+ warung: WarungResponseType;
 };
 
 export type getBillByWarungIdResponseType = BillResponseType;
-export type updateBillResponseType = Omit<BillResponseType, "orders">;
+export type updateBillResponseType = Omit<
+ BillResponseType,
+ "orders" | "warung"
+>;
 
 export type QueryKeyGetAllBill = [
  {
@@ -62,7 +68,6 @@ export type QueryKeyGetAllBill = [
 ];
 
 export interface FetchBillsParams {
- warungId: number;
  page: number;
  limit: number;
  search?: string;
@@ -71,12 +76,8 @@ export interface FetchBillsParams {
 }
 
 export interface getAllUserBillResponseType {
- data: BillResponseType &
-  {
-   warung: WarungResponseType;
-  }[];
+ data: BillResponseType[];
  page: number;
  totalPages: number;
  total: number;
- // Tambahkan properti lainnya sesuai kebutuhan
 }

@@ -103,6 +103,7 @@ const CreateMenuForm = ({
 
  function onSubmit(values: z.infer<typeof formSchema>) {
   setIsLoading(true);
+
   createMenuMutation.mutate(values);
 
   setIsLoading(false);
