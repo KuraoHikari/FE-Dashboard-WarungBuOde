@@ -67,6 +67,7 @@ import { Input } from "@/components/ui/input";
 import CreateMenuForm from "@/components/custom-form/create-menu-form";
 import { useGetAllUserWarung } from "@/hooks/useGetWarungs";
 import EditMenuForm from "@/components/custom-form/edit-menu-form";
+import ComponentCamera from "@/components/camera/example";
 
 const MenuPage = () => {
  const location = useLocation();
@@ -124,7 +125,6 @@ const MenuPage = () => {
  const nextPage = () => {
   setPage(page + 1);
  };
- console.log(data);
 
  if (error) return "An error has occurred: " + error.message;
  return (
@@ -170,6 +170,7 @@ const MenuPage = () => {
           <DialogTitle>Add Menu</DialogTitle>
           <DialogDescription>Add new menu to your list.</DialogDescription>
          </DialogHeader>
+
          <CreateMenuForm
           warungs={warungs?.data}
           open={open}

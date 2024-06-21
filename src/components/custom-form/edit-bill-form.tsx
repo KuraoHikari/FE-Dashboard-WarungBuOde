@@ -10,6 +10,13 @@ import {
  FormLabel,
  FormMessage,
 } from "@/components/ui/form";
+import {
+ Select,
+ SelectContent,
+ SelectItem,
+ SelectTrigger,
+ SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -22,50 +29,47 @@ import { useToast } from "../ui/use-toast";
 import { isHTTPError } from "@/api/baseApi";
 
 import { useMutation } from "@tanstack/react-query";
-import {
- MenuResponseType,
- updateMenuResponseType,
- updateMenuSchema,
-} from "@/schemas/menuSchema";
-import { updateMenu } from "@/services/menuServices";
 
-import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+ BillResponseType,
+ updateBillResponseType,
+ updateBillSchema,
+} from "@/schemas/billSchema";
+import { updateBillStatusOrApproved } from "@/services/billServices";
 
-interface UpdateMenuFormProps extends React.HTMLAttributes<HTMLDivElement> {
+interface UpdateBillFormProps extends React.HTMLAttributes<HTMLDivElement> {
  open: boolean;
  setopen: (open: boolean) => void;
  refetch: () => void; // Add this line
- menu: Omit<MenuResponseType, "warung">;
+ bill: Omit<BillResponseType, "warung" | "orders">;
 }
 
-const EditMenuForm = ({
+const EditBillForm = ({
  className,
+ bill,
  setopen,
  refetch,
- menu,
  ...rest
-}: UpdateMenuFormProps) => {
+}: UpdateBillFormProps) => {
  const { toast } = useToast();
 
  const [isLoading, setIsLoading] = React.useState(false);
- const formSchema = updateMenuSchema;
+ const formSchema = updateBillSchema;
  const form = useForm<z.infer<typeof formSchema>>({
   resolver: zodResolver(formSchema),
   defaultValues: {
-   title: menu.title,
-   price: menu.price,
-   desc: menu.desc,
-   available: menu.available,
-   category: menu.category,
+   status: bill.status,
+   approved: bill.approved,
+   customerName: bill.customerName,
   },
  });
 
  const updateMenuMutation = useMutation({
   mutationFn: async (
-   data: z.infer<typeof updateMenuSchema>
-  ): Promise<updateMenuResponseType> => {
-   return updateMenu(data, menu.warungId, menu.id);
+   data: z.infer<typeof updateBillSchema>
+  ): Promise<updateBillResponseType> => {
+   return updateBillStatusOrApproved(data, bill.warungId, bill.id);
   },
   onError: async (error) => {
    if (isHTTPError(error)) {
@@ -80,14 +84,14 @@ const EditMenuForm = ({
     toast({
      title: "Error",
      variant: "destructive",
-     description: "Failed to Edit Menu",
+     description: "Failed to Update Bill",
     });
    }
   },
   onSuccess: () => {
    toast({
-    title: "Edit Menu Success",
-    description: "You have successfully edit your Menu",
+    title: "Update Bill Success",
+    description: "You have successfully update your bill",
    });
    form.reset();
    refetch();
@@ -96,7 +100,6 @@ const EditMenuForm = ({
  });
 
  function onSubmit(values: z.infer<typeof formSchema>) {
-  console.log("🚀 ~ onSubmit ~ values:", values);
   setIsLoading(true);
   updateMenuMutation.mutate(values);
   setIsLoading(false);
@@ -110,51 +113,34 @@ const EditMenuForm = ({
       <div className="grid gap-1">
        <FormField
         control={form.control}
-        name="title"
+        name="status"
         render={({ field }) => (
          <FormItem>
-          <FormLabel>Menu Name</FormLabel>
-          <FormControl>
-           <Input type="text" placeholder="bu-ode" {...field} />
-          </FormControl>
-          <FormDescription>Your menu name</FormDescription>
+          <FormLabel>Bill Status</FormLabel>
+          <Select onValueChange={field.onChange} defaultValue={field.value}>
+           <FormControl>
+            <SelectTrigger>
+             <SelectValue placeholder="Select bill status" />
+            </SelectTrigger>
+           </FormControl>
+           <SelectContent>
+            <SelectItem value="Unpaid">Unpaid</SelectItem>
+            <SelectItem value="Pending">Pending</SelectItem>
+            <SelectItem value="Paid">Paid</SelectItem>
+            <SelectItem value="Partially_paid">Partially Paid</SelectItem>
+            <SelectItem value="Overdue">Overdue</SelectItem>
+            <SelectItem value="Cancelled">Cancelled</SelectItem>
+            <SelectItem value="Refunded">Refunded</SelectItem>
+           </SelectContent>
+          </Select>
+          <FormDescription>Select bill status</FormDescription>
           <FormMessage />
          </FormItem>
         )}
        />
        <FormField
         control={form.control}
-        name="price"
-        render={({ field }) => (
-         <FormItem>
-          <FormLabel>Price</FormLabel>
-          <FormControl>
-           <Input type="number" placeholder="Enter price" {...field} />
-          </FormControl>
-          <FormDescription>Enter the price of the menu item</FormDescription>
-         </FormItem>
-        )}
-       />
-
-       <FormField
-        control={form.control}
-        name="desc"
-        render={({ field }) => (
-         <FormItem>
-          <FormLabel>Description</FormLabel>
-          <FormControl>
-           <Textarea placeholder="Enter description" {...field} />
-          </FormControl>
-          <FormDescription>
-           Enter a description of the menu item
-          </FormDescription>
-         </FormItem>
-        )}
-       />
-
-       <FormField
-        control={form.control}
-        name="available"
+        name="approved"
         render={({ field }) => (
          <FormItem>
           <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
@@ -162,8 +148,8 @@ const EditMenuForm = ({
             <Checkbox checked={field.value} onCheckedChange={field.onChange} />
            </FormControl>
            <div className="space-y-1 leading-none">
-            <FormLabel>Menu Avalability</FormLabel>
-            <FormDescription>Is the menu item available?</FormDescription>
+            <FormLabel>Bill Approved</FormLabel>
+            <FormDescription>Is the bill approved?</FormDescription>
            </div>
           </FormItem>
          </FormItem>
@@ -172,14 +158,15 @@ const EditMenuForm = ({
 
        <FormField
         control={form.control}
-        name="category"
+        name="customerName"
         render={({ field }) => (
          <FormItem>
-          <FormLabel>Category</FormLabel>
+          <FormLabel>Customer Name</FormLabel>
           <FormControl>
-           <Input type="text" placeholder="Enter category" {...field} />
+           <Input type="text" placeholder="bu-ode" {...field} />
           </FormControl>
-          <FormDescription>Enter the category of the menu item</FormDescription>
+          <FormDescription>Your Customer name</FormDescription>
+          <FormMessage />
          </FormItem>
         )}
        />
@@ -196,4 +183,4 @@ const EditMenuForm = ({
  );
 };
 
-export default EditMenuForm;
+export default EditBillForm;

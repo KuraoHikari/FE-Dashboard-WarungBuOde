@@ -9,7 +9,7 @@ export const useGetAllUserWarung = ({
  search,
 }: FetchWarungsParams) => {
  return useQuery({
-  queryKey: ["user-warungs", { page, limit, search }],
+  queryKey: ["user-warungs-menu", { page, limit, search }],
   queryFn: getAllWarungs,
  });
 };

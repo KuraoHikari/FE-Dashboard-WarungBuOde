@@ -92,6 +92,9 @@ export const updateBillStatusOrApproved = async (
 ): Promise<updateBillResponseType> => {
  const response = await baseApi.patch(`bill/${warungId}/edit/${billId}`, {
   json: data,
+  headers: {
+   token: `${localStorage.getItem("token")}`,
+  },
  });
  if (!response.ok) {
   throw new Error("Failed to update bill");

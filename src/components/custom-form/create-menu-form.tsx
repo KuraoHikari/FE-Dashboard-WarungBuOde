@@ -36,6 +36,52 @@ import {
  SelectValue,
 } from "@/components/ui/select";
 import { WarungResponseType } from "@/schemas/warungSchema";
+import {
+ Dialog,
+ DialogClose,
+ DialogContent,
+ DialogTrigger,
+} from "@/components/ui/dialog";
+import CameraExample from "../camera/example";
+import { Arrow } from "@radix-ui/react-tooltip";
+import { ArrowBigUp, ArrowLeft } from "lucide-react";
+
+/**
+ * Converts a base64 string into a File object.
+ * @param {string} base64 - The base64 string to convert.
+ * @param {string} filename - The filename for the resulting File object.
+ * @param {string} mimeType - The MIME type of the file. Defaults to 'application/octet-stream'.
+ * @returns {File} The resulting File object.
+ */
+function base64ToFile(base64, filename, mimeType = "application/octet-stream") {
+ // Decode the base64 string to an array of bytes
+ const byteString = atob(base64.split(",")[1]);
+ const ab = new ArrayBuffer(byteString.length);
+ const ia = new Uint8Array(ab);
+ for (let i = 0; i < byteString.length; i++) {
+  ia[i] = byteString.charCodeAt(i);
+ }
+
+ // Create a blob from the byte array and then convert it to a File
+ const blob = new Blob([ab], { type: mimeType });
+ const file = new File([blob], filename, { type: mimeType });
+
+ return file;
+}
+function getImageData(event: ChangeEvent<HTMLInputElement>) {
+ // FileList is immutable, so we need to create a new one
+ const dataTransfer = new DataTransfer();
+
+ // Add newly uploaded images
+ Array.from(event.target.files!).forEach((image) =>
+  dataTransfer.items.add(image)
+ );
+
+ const files = dataTransfer.files;
+ const displayUrl = URL.createObjectURL(event.target.files![0]);
+
+ return { files, displayUrl };
+}
 
 interface CreateMenuFormProps extends React.HTMLAttributes<HTMLDivElement> {
  open: boolean;
@@ -52,7 +98,8 @@ const CreateMenuForm = ({
  ...rest
 }: CreateMenuFormProps) => {
  const { toast } = useToast();
-
+ const [image, setImage] = React.useState<string | null>(null);
+ const [preview, setPreview] = React.useState("");
  const [isLoading, setIsLoading] = React.useState(false);
  const formSchema = createMenuSchema;
  const form = useForm<z.infer<typeof formSchema>>({
@@ -66,6 +113,18 @@ const CreateMenuForm = ({
    warungId: "",
   },
  });
+
+ const setImageValue = async () => {
+  if (image === null) {
+   return null;
+  }
+
+  const file = base64ToFile(image, "image.jpg", "image/jpeg");
+  form.setValue("image", file);
+
+  const displayUrl = URL.createObjectURL(file);
+  setPreview(displayUrl);
+ };
 
  const createMenuMutation = useMutation({
   mutationFn: async (
@@ -110,7 +169,10 @@ const CreateMenuForm = ({
  }
 
  return (
-  <div className={cn("grid gap-6", className)} {...rest}>
+  <div
+   className={cn("grid gap-6 overflow-y-auto h-96 p-2", className)}
+   {...rest}
+  >
    <Form {...form}>
     {warungs?.length === 0 || warungs === undefined ? (
      <div className="text-center text-lg">
@@ -174,7 +236,6 @@ const CreateMenuForm = ({
           </FormItem>
          )}
         />
-
         <FormField
          control={form.control}
          name="desc"
@@ -190,7 +251,6 @@ const CreateMenuForm = ({
           </FormItem>
          )}
         />
-
         <FormField
          control={form.control}
          name="available"
@@ -208,23 +268,28 @@ const CreateMenuForm = ({
           </FormItem>
          )}
         />
-
         <FormField
          control={form.control}
          name="category"
          render={({ field }) => (
           <FormItem>
-           <FormLabel>Category</FormLabel>
-           <FormControl>
-            <Input type="text" placeholder="Enter category" {...field} />
-           </FormControl>
-           <FormDescription>
-            Enter the category of the menu item
-           </FormDescription>
+           <FormLabel>Food Category</FormLabel>
+           <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <FormControl>
+             <SelectTrigger>
+              <SelectValue placeholder="Select a food category" />
+             </SelectTrigger>
+            </FormControl>
+            <SelectContent>
+             <SelectItem value="makanan">makanan</SelectItem>
+             <SelectItem value="minuman">minuman</SelectItem>
+            </SelectContent>
+           </Select>
+           <FormDescription>Your food category</FormDescription>
+           <FormMessage />
           </FormItem>
          )}
         />
-
         <FormField
          control={form.control}
          name="image"
@@ -235,30 +300,46 @@ const CreateMenuForm = ({
             <div>
              <Input
               type="file"
-              onChange={(e) =>
-               onChange(e.target.files ? (e.target.files[0] as Blob) : null)
-              }
+              onChange={(e) => {
+               const { displayUrl } = getImageData(e);
+               setPreview(displayUrl);
+               onChange(e.target.files ? (e.target.files[0] as Blob) : null);
+              }}
               onBlur={onBlur}
               name={name}
               ref={ref}
              />
-
-             {/* {form.watch("image") && (
-             <img
-              className="mt-2 w-32 h-32 object-cover"
-              src={URL.createObjectURL(
-               form?.watch("image") ? (form?.watch("image") ) : undefined
-              )}
-              alt="menu"
-             />
-            )} */}
             </div>
            </FormControl>
-           <FormDescription>Upload an image of the menu item</FormDescription>
+           <FormDescription>
+            Upload an image of the menu item or Take a picture
+           </FormDescription>
           </FormItem>
          )}
         />
 
+        {preview && <img src={preview} alt="preview" className="w-44 h-44" />}
+        <Dialog>
+         <DialogTrigger asChild>
+          <Button variant="outline">Take a picture</Button>
+         </DialogTrigger>
+         <DialogContent className="h-full w-full">
+          <div className="h-full w-full">
+           <div className="fixed flex right-0  min-w-[130px] min-h-[80px]  bg-black/80 z-40  items-center justify-between p-12 box-border flex-row top-0 w-full h-1/8 sm:p-2.5">
+            <DialogClose asChild>
+             <ArrowLeft className="w-8 h-8 text-white" />
+            </DialogClose>
+
+            <DialogClose asChild>
+             <Button type="button" variant="secondary" onClick={setImageValue}>
+              Upload <ArrowBigUp className="w-8 h-8 text-white" />
+             </Button>
+            </DialogClose>
+           </div>
+           <CameraExample image={image} setImage={setImage} />
+          </div>
+         </DialogContent>
+        </Dialog>
         <Button className="mt-4" type="submit" disabled={isLoading}>
          {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
          Submit

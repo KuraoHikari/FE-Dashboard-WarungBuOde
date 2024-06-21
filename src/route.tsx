@@ -9,59 +9,64 @@ import NotFoundPage from "./pages/NotFoundPage";
 import WarungPage from "./pages/WarungPage";
 import MenuPage from "./pages/MenuPage";
 import BillPage from "./pages/BillPage";
+import CameraExample from "./components/camera/example";
 
 export const menuRoute = [
-  {
-    name: "Warung",
-    path: "/warung",
-    element: <DashboardLayout />,
-    icon: <Store className="h-5 w-5" />,
-    loader: dashboardLoader,
-    children: [
-      {
-        index: true,
-        element: <WarungPage />,
-      },
-    ],
-  },
-  {
-    name: "Menu",
-    path: "/menu",
-    element: <DashboardLayout />,
-    icon: <Pizza className="h-5 w-5" />,
-    loader: dashboardLoader,
-    children: [
-      {
-        index: true,
-        element: <MenuPage />,
-      },
-    ],
-  },
-  {
-    name: "Bill",
-    path: "/bill",
-    element: <DashboardLayout />,
-    icon: <ReceiptText className="h-5 w-5" />,
-    loader: dashboardLoader,
-    children: [
-      {
-        index: true,
-        element: <BillPage />,
-      },
-    ],
-  },
+ {
+  name: "Warung",
+  path: "/warung",
+  element: <DashboardLayout />,
+  icon: <Store className="h-5 w-5" />,
+  loader: dashboardLoader,
+  children: [
+   {
+    index: true,
+    element: <WarungPage />,
+   },
+  ],
+ },
+ {
+  name: "Menu",
+  path: "/menu",
+  element: <DashboardLayout />,
+  icon: <Pizza className="h-5 w-5" />,
+  loader: dashboardLoader,
+  children: [
+   {
+    index: true,
+    element: <MenuPage />,
+   },
+  ],
+ },
+ {
+  name: "Bill",
+  path: "/bill",
+  element: <DashboardLayout />,
+  icon: <ReceiptText className="h-5 w-5" />,
+  loader: dashboardLoader,
+  children: [
+   {
+    index: true,
+    element: <BillPage />,
+   },
+  ],
+ },
 ];
 const router = createBrowserRouter([
-  ...menuRoute,
-  {
-    path: "/auth",
-    element: <AuthLayout />,
-    loader: authLoader,
-  },
-  {
-    path: "*",
-    element: <NotFoundPage />,
-  },
+ ...menuRoute,
+ {
+  path: "/auth",
+  element: <AuthLayout />,
+  loader: authLoader,
+ },
+ {
+  path: "/camera",
+  element: <CameraExample />,
+ },
+ {
+  path: "*",
+  element: <NotFoundPage />,
+ },
 ]);
 
 export default router;
