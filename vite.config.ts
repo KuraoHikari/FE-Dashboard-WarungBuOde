@@ -8,9 +8,9 @@ export default defineConfig({
   react(),
   VitePWA({
    manifest: {
-    name: "Vite-React-PWA-demo",
-    short_name: "Vite-React-PWA",
-    description: "PWA built with React and Vite",
+    name: "Warung Bu Ode",
+    short_name: "Warung Bu Ode",
+    description: "Aplikasi kasir untuk warung Bu Ode",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",

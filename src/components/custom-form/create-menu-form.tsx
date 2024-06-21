@@ -43,17 +43,14 @@ import {
  DialogTrigger,
 } from "@/components/ui/dialog";
 import CameraExample from "../camera/example";
-import { Arrow } from "@radix-ui/react-tooltip";
+
 import { ArrowBigUp, ArrowLeft } from "lucide-react";
 
-/**
- * Converts a base64 string into a File object.
- * @param {string} base64 - The base64 string to convert.
- * @param {string} filename - The filename for the resulting File object.
- * @param {string} mimeType - The MIME type of the file. Defaults to 'application/octet-stream'.
- * @returns {File} The resulting File object.
- */
-function base64ToFile(base64, filename, mimeType = "application/octet-stream") {
+function base64ToFile(
+ base64: string,
+ filename: string,
+ mimeType: string = "application/octet-stream"
+): File {
  // Decode the base64 string to an array of bytes
  const byteString = atob(base64.split(",")[1]);
  const ab = new ArrayBuffer(byteString.length);
@@ -68,7 +65,7 @@ function base64ToFile(base64, filename, mimeType = "application/octet-stream") {
 
  return file;
 }
-function getImageData(event: ChangeEvent<HTMLInputElement>) {
+function getImageData(event: React.ChangeEvent<HTMLInputElement>) {
  // FileList is immutable, so we need to create a new one
  const dataTransfer = new DataTransfer();
 

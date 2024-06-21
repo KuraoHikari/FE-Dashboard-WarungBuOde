@@ -9,7 +9,6 @@ import NotFoundPage from "./pages/NotFoundPage";
 import WarungPage from "./pages/WarungPage";
 import MenuPage from "./pages/MenuPage";
 import BillPage from "./pages/BillPage";
-import CameraExample from "./components/camera/example";
 
 export const menuRoute = [
  {
@@ -59,10 +58,7 @@ const router = createBrowserRouter([
   element: <AuthLayout />,
   loader: authLoader,
  },
- {
-  path: "/camera",
-  element: <CameraExample />,
- },
+
  {
   path: "*",
   element: <NotFoundPage />,

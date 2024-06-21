@@ -67,7 +67,6 @@ import { Input } from "@/components/ui/input";
 import CreateMenuForm from "@/components/custom-form/create-menu-form";
 import { useGetAllUserWarung } from "@/hooks/useGetWarungs";
 import EditMenuForm from "@/components/custom-form/edit-menu-form";
-import ComponentCamera from "@/components/camera/example";
 
 const MenuPage = () => {
  const location = useLocation();
