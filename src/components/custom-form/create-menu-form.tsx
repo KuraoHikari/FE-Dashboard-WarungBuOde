@@ -46,6 +46,12 @@ import CameraExample from "../camera/example";
 
 import { ArrowBigUp, ArrowLeft } from "lucide-react";
 
+// Import images at the top of your file
+import iconRetinaUrl from "leaflet/dist/images/marker-icon-2x.png";
+import iconUrl from "leaflet/dist/images/marker-icon.png";
+import shadowUrl from "leaflet/dist/images/marker-shadow.png";
+import L from "leaflet";
+
 function base64ToFile(
  base64: string,
  filename: string,
@@ -86,6 +92,15 @@ interface CreateMenuFormProps extends React.HTMLAttributes<HTMLDivElement> {
  refetch: () => void; // Add this line
  warungs: WarungResponseType[] | undefined;
 }
+
+// Before the line that causes the error, assert the type to any
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+
+L.Icon.Default.mergeOptions({
+ iconRetinaUrl,
+ iconUrl,
+ shadowUrl,
+});
 
 const CreateMenuForm = ({
  className,
