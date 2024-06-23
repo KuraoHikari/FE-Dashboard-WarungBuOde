@@ -46,12 +46,6 @@ import CameraExample from "../camera/example";
 
 import { ArrowBigUp, ArrowLeft } from "lucide-react";
 
-// Import images at the top of your file
-import iconRetinaUrl from "leaflet/dist/images/marker-icon-2x.png";
-import iconUrl from "leaflet/dist/images/marker-icon.png";
-import shadowUrl from "leaflet/dist/images/marker-shadow.png";
-import L from "leaflet";
-
 function base64ToFile(
  base64: string,
  filename: string,
@@ -94,13 +88,6 @@ interface CreateMenuFormProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 // Before the line that causes the error, assert the type to any
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-
-L.Icon.Default.mergeOptions({
- iconRetinaUrl,
- iconUrl,
- shadowUrl,
-});
 
 const CreateMenuForm = ({
  className,
@@ -208,7 +195,13 @@ const CreateMenuForm = ({
             </FormControl>
             <SelectContent>
              {warungs?.map((warung) => (
-              <SelectItem key={warung.id} value={String(warung.id)}>
+              <SelectItem
+               key={warung.id}
+               value={String(warung.id)}
+               onClick={() => {
+                console.log(warung.id);
+               }}
+              >
                {warung.name}
               </SelectItem>
              ))}
@@ -226,11 +219,11 @@ const CreateMenuForm = ({
          name="title"
          render={({ field }) => (
           <FormItem>
-           <FormLabel>Warung Name</FormLabel>
+           <FormLabel>Menu Name</FormLabel>
            <FormControl>
             <Input type="text" placeholder="bu-ode" {...field} />
            </FormControl>
-           <FormDescription>Your warung name</FormDescription>
+           <FormDescription>Your menu name</FormDescription>
            <FormMessage />
           </FormItem>
          )}

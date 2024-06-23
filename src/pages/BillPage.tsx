@@ -46,6 +46,7 @@ import {
  ChevronRight,
  Eye,
  MoreHorizontal,
+ Plus,
  SquareCheckIcon,
  SquareMinusIcon,
 } from "lucide-react";
@@ -69,6 +70,7 @@ const BillPage = () => {
  const location = useLocation();
  const searchParams = new URLSearchParams(location.search);
 
+ const [open, setOpen] = useState<boolean>(false);
  const [editOpen, setEditOpen] = useState<boolean>(false);
  const [searchQuery, setSearchQuery] = useState<string>("");
 
@@ -153,27 +155,43 @@ const BillPage = () => {
     <TabsContent value="all">
      <Card x-chunk="dashboard-06-chunk-0">
       <CardHeader>
-       {/* <CardTitle>Bill</CardTitle>
-       <CardDescription>
-        Manage your bill and view their performance.
-       </CardDescription> */}
+       <Dialog open={open} onOpenChange={setOpen}>
+        <div className="sm:flex items-center gap-2 justify-between">
+         <div>
+          <CardTitle>Bill</CardTitle>
+          <CardDescription className="mt-2">
+           Manage your bill and view their performance.
+          </CardDescription>
 
-       <div className="sm:flex items-center gap-2 justify-between">
-        <div>
-         <CardTitle>Bill</CardTitle>
-         <CardDescription className="mt-2">
-          Manage your bill and view their performance.
-         </CardDescription>
-
-         <Input
-          className="mt-2"
-          type="text"
-          placeholder="Search"
-          value={searchQuery} // Bind the input value to the searchQuery state
-          onChange={(e) => setSearchQuery(e.target.value)}
-         />
+          <Input
+           className="mt-2"
+           type="text"
+           placeholder="Search"
+           value={searchQuery} // Bind the input value to the searchQuery state
+           onChange={(e) => setSearchQuery(e.target.value)}
+          />
+         </div>
+         <DialogTrigger asChild>
+          <Button
+           variant="outline"
+           onClick={(e) => {
+            e.preventDefault();
+            setOpen(true);
+           }}
+           className="w-full mt-2 sm:w-fit sm:mt-0"
+          >
+           <Plus className="h-4 w-4 me-2" />
+           Add Bill
+          </Button>
+         </DialogTrigger>
         </div>
-       </div>
+        <DialogContent>
+         <DialogHeader>
+          <DialogTitle>Add Bill</DialogTitle>
+          <DialogDescription>Add a new bill to your warung.</DialogDescription>
+         </DialogHeader>
+        </DialogContent>
+       </Dialog>
       </CardHeader>
       <CardContent>
        {!isLoading ? (

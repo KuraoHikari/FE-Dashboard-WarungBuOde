@@ -11,8 +11,8 @@ export const createBillSchema = z.object({
  status: z.string(),
  approved: z.boolean(),
  customerName: z.string(),
-
- orders: z.array(Order),
+ warungId: z.string(),
+ //  orders: z.array(Order),
 });
 
 export const updateBillSchema = z.object({

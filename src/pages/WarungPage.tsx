@@ -87,10 +87,6 @@ const WarungPage = () => {
   setEditOpen(true);
  };
 
- // Parse query parameters
-
- // TypeScript version of updateSearchQuery function
-
  const { data, isLoading, error, refetch } = useGetAllUserWarung({
   page: page,
   limit: limit,

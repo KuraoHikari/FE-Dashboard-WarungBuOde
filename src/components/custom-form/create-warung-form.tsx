@@ -27,6 +27,12 @@ import { isHTTPError } from "@/api/baseApi";
 import { createMyWarung } from "@/services/warungServices";
 import { useMutation } from "@tanstack/react-query";
 
+// Import images at the top of your file
+import iconRetinaUrl from "leaflet/dist/images/marker-icon-2x.png";
+import iconUrl from "leaflet/dist/images/marker-icon.png";
+import shadowUrl from "leaflet/dist/images/marker-shadow.png";
+import L from "leaflet";
+
 interface CreateWarungFormProps extends React.HTMLAttributes<HTMLDivElement> {
  open: boolean;
  setopen: (open: boolean) => void;
@@ -36,6 +42,14 @@ interface Position {
  lat: number;
  lng: number;
 }
+
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+
+L.Icon.Default.mergeOptions({
+ iconRetinaUrl,
+ iconUrl,
+ shadowUrl,
+});
 
 const CreateWarungForm = ({
  className,
