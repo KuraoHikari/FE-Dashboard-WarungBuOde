@@ -3,8 +3,9 @@ This project is a Progressive Web App (PWA) designed to help manage small stores
 
 ## Table of Contents
 
-- [Figma Design](#figma-design)
-- [Componen](#hooks-and-components-documentation)
+- [Warung Bu Ode Management Food](#warung-bu-ode-management-food)
+  - [Figma Design](#figma-design)
+- [Hooks and Components Documentation](#hooks-and-components-documentation)
   - [Hooks](#hooks)
     - [useGetAllBillsByWarungId](#usegetallbillsbywarungid)
     - [useGetAllUserMenu](#usegetallusermenu)
@@ -12,99 +13,26 @@ This project is a Progressive Web App (PWA) designed to help manage small stores
   - [Layout Components](#layout-components)
     - [AuthLayout](#authlayout)
     - [DashboardLayout](#dashboardlayout)
-  - [Loaders Documentation](#loaders-documentation)
-    - [authLoader](#authloader)
-    - [dashboardLoader](#dashboardloader)
+- [Loaders Components](#loaders-documentation)
+  - [authLoader](#authloader)
+  - [dashboardLoader](#dashboardloader)
+- [Pages Components](#pages-and-components)
+  - [BillPage](#billpage)
+  - [MenuPage](#menupage)
+  - [NotFoundPage](#notfoundpage)
+  - [OfflineHandler](#offlinehandler)
+  - [TableA](#tablea)
+  - [WarungPage](#warungpage)
 - [Installation Instructions](#Installation)
 
 ## Figma Design
-
 Include screenshots of your application's design from Figma here.
-Mobile 
+### Mobile 
 ![Screenshot 2024-06-25 123526](https://github.com/KuraoHikari/FE-Dashboard-WarungBuOde/assets/97963813/ac04d54c-7ea2-4310-beb6-d2b2535054df)
-Desktop
+### Desktop
 ![Screenshot 2024-06-25 123547](https://github.com/KuraoHikari/FE-Dashboard-WarungBuOde/assets/97963813/27d4313b-ea18-46e1-a5b4-10f13f4ca689)
 
-
-## Hooks and Components Documentation
-
-### Hooks
-
-#### useGetAllBillsByWarungId
-
-The `useGetAllBillsByWarungId` hook fetches all bills associated with a specific warung ID using `@tanstack/react-query`.
-
-```javascript
-// Example code snippet provided earlier
-```
-
-#### useGetAllUserMenu
-
-The `useGetAllUserMenu` hook retrieves all menu items based on specified parameters using `@tanstack/react-query`.
-
-```javascript
-// Example code snippet provided earlier
-```
-
-#### useGetAllUserWarung
-
-The `useGetAllUserWarung` hook fetches all warungs for the current user using `@tanstack/react-query`.
-
-```javascript
-// Example code snippet provided earlier
-```
-
-### Layout Components
-
-#### AuthLayout
-
-The `AuthLayout` component manages user authentication UI elements.
-
-```javascript
-// Example code snippet provided earlier
-```
-
-#### DashboardLayout
-
-The `DashboardLayout` component organizes the dashboard interface with navigation and breadcrumbs.
-
-```javascript
-// Example code snippet provided earlier
-```
-
-### Loaders Documentation
-
-#### authLoader
-
-The `authLoader` function checks for authentication token existence.
-
-```javascript
-// Example code snippet provided earlier
-```
-
-#### dashboardLoader
-
-The `dashboardLoader` function ensures user authentication for dashboard access.
-
-```javascript
-// Example code snippet provided earlier
-```
-
-## Installation Instructions
-
-Follow these steps to install and run the project locally:
-
-1. Clone the repository from GitHub.
-2. Navigate to the project directory.
-3. Install dependencies using `npm install`.
-4. Start the development server with `npm start`.
-
----
-
-This README provides an overview of hooks, components, and installation instructions necessary for setting up and understanding your "Warung Management by Bu Ode" application. Adjust paths and details as per your project's structure and requirements.
-
 # Hooks
-
 This is hooks of `useGetAllBillsByWarungId`, `useGetAllUserMenu`, `useGetAllUserWarung`
 
 ## useGetAllBillsByWarungId
@@ -472,11 +400,6 @@ const BillPage = () => {
 export default BillPage;
 ```
 
-
-Certainly! Here's a README for your React.js component page, explaining its functionality and including relevant code snippets:
-
----
-
 # MenuPage
 The MenuPage component is designed to manage and display a user's menu items within a web application. It integrates various UI components for a seamless user experience.
 
@@ -657,9 +580,6 @@ const MenuPage = () => {
 
 export default MenuPage;
 ```
-Here's a README for your `NotFoundPage` component in React.js:
-
----
 
 # NotFoundPage Component README
 The NotFoundPage component is designed to handle the display of a "404 Not Found" error page within a web application. It provides users with a friendly message and navigation option back to the homepage.
