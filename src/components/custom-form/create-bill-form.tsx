@@ -34,25 +34,34 @@ import {
 } from "@/components/ui/select";
 import { WarungResponseType } from "@/schemas/warungSchema";
 
-import { BillResponseType, createBillSchema } from "@/schemas/billSchema";
+import {
+ BillResponseType,
+ createBillSchema,
+ OrderType,
+} from "@/schemas/billSchema";
 import { createBill } from "@/services/billServices";
+import { getAllMenuResponseType } from "@/schemas/menuSchema";
+import { useGetAllUserMenuByWarungId } from "@/hooks/useGetMenusByWarungId";
 
-interface CreateMenuFormProps extends React.HTMLAttributes<HTMLDivElement> {
- open: boolean;
+interface CreateBillFormProps extends React.HTMLAttributes<HTMLDivElement> {
  setopen: (open: boolean) => void;
  refetch: () => void; // Add this line
  warungs: WarungResponseType[] | undefined;
 }
 
-const CreateMenuForm = ({
+const CreateBillForm = ({
  className,
  setopen,
  refetch,
  warungs,
  ...rest
-}: CreateMenuFormProps) => {
+}: CreateBillFormProps) => {
  const { toast } = useToast();
  const [isLoading, setIsLoading] = React.useState(false);
+ const [menus, setMenus] = React.useState<getAllMenuResponseType | []>([]);
+ const [warungId, setWarungId] = React.useState<number>(0);
+ const [itemOrders, setItemOrders] = React.useState<OrderType[] | []>([]);
+
  const formSchema = createBillSchema;
  const form = useForm<z.infer<typeof formSchema>>({
   resolver: zodResolver(formSchema),
@@ -106,6 +115,19 @@ const CreateMenuForm = ({
   setIsLoading(false);
  }
 
+ const { data } = useGetAllUserMenuByWarungId({
+  page: 1,
+  limit: 10,
+  search: "",
+  warungId,
+ });
+
+ const handleWarungSetup = (value: string) => {
+  form.setValue("warungId", value);
+
+  setWarungId(Number(value));
+ };
+
  return (
   <div
    className={cn("grid gap-6 overflow-y-auto h-96 p-2", className)}
@@ -126,7 +148,7 @@ const CreateMenuForm = ({
          render={({ field }) => (
           <FormItem>
            <FormLabel>Warung</FormLabel>
-           <Select onValueChange={field.onChange} defaultValue={field.value}>
+           <Select onValueChange={handleWarungSetup} defaultValue={field.value}>
             <FormControl>
              <SelectTrigger>
               <SelectValue placeholder="Select a warung" />
@@ -212,6 +234,7 @@ const CreateMenuForm = ({
           </FormItem>
          )}
         />
+
         <Button className="mt-4" type="submit" disabled={isLoading}>
          {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
          Submit
@@ -225,4 +248,4 @@ const CreateMenuForm = ({
  );
 };
 
-export default CreateMenuForm;
+export default CreateBillForm;
