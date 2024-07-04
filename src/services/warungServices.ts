@@ -18,7 +18,6 @@ export const getAllWarungs = async ({
 >): Promise<getAllWarungsResponseType> => {
  // eslint-disable-next-line @typescript-eslint/no-unused-vars
  const [_key, { page, limit, search }] = queryKey;
- console.log("🚀 ~  page, limit, search:", page, limit, search);
 
  const searchParams = new URLSearchParams({
   page: page.toString(),

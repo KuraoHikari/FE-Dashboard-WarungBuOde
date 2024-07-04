@@ -65,8 +65,6 @@ import { useState } from "react";
 import { BillResponseType } from "@/schemas/billSchema";
 import { Input } from "@/components/ui/input";
 import EditBillForm from "@/components/custom-form/edit-bill-form";
-import CreateBillFrom from "@/components/custom-form/create-bill-form";
-import { useGetAllUserWarung } from "@/hooks/useGetWarungs";
 
 const BillPage = () => {
   const location = useLocation();
@@ -121,11 +119,6 @@ const BillPage = () => {
     search: searchQuery,
     status: "",
     approved: undefined,
-  });
-
-  const { data: warungs } = useGetAllUserWarung({
-    page: 1,
-    limit: 100,
   });
 
   const previousPage = () => {
@@ -198,12 +191,6 @@ const BillPage = () => {
                     <DialogDescription>
                       Add a new bill to your warung.
                     </DialogDescription>
-                    <CreateBillFrom
-                      open={open}
-                      setopen={setOpen}
-                      refetch={refetch}
-                      warungs={warungs?.data}
-                    />
                   </DialogHeader>
                 </DialogContent>
               </Dialog>

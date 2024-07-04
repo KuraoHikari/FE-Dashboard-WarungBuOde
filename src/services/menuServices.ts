@@ -1,6 +1,7 @@
 import baseApi from "@/api/baseApi";
 import {
  createMenuSchema,
+ FetchMenusByWarungIdParams,
  FetchMenusParams,
  getAllMenuResponseType,
  getOneMenuByIdResponseType,
@@ -73,10 +74,25 @@ export const getAllMenu = async ({
  return json;
 };
 
-export const getWarungMenu = async (
- warungId: number
-): Promise<getAllMenuResponseType> => {
- const response = await baseApi.get(`menu/${warungId}`);
+export const getWarungMenu = async ({
+ queryKey,
+}: QueryFunctionContext<
+ [string, FetchMenusByWarungIdParams]
+>): Promise<getAllMenuResponseType> => {
+ // eslint-disable-next-line @typescript-eslint/no-unused-vars
+ const [_key, { page, limit, search, warungId }] = queryKey;
+
+ const searchParams = new URLSearchParams({
+  page: page.toString(),
+  limit: limit.toString(),
+  search: search || "",
+ });
+ const response = await baseApi.get(`menu/${warungId}`, {
+  searchParams,
+  headers: {
+   token: `${localStorage.getItem("token")}`,
+  },
+ });
  if (!response.ok) {
   throw new Error("Failed to fetch menus");
  }

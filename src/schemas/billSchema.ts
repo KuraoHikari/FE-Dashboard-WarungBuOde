@@ -12,7 +12,7 @@ export const createBillSchema = z.object({
  approved: z.boolean(),
  customerName: z.string(),
  warungId: z.string(),
- //  orders: z.array(Order),
+ orders: z.array(Order),
 });
 
 export const updateBillSchema = z.object({

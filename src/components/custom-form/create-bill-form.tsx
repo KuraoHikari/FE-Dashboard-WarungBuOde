@@ -37,20 +37,20 @@ import { WarungResponseType } from "@/schemas/warungSchema";
 import { BillResponseType, createBillSchema } from "@/schemas/billSchema";
 import { createBill } from "@/services/billServices";
 
-interface CreateBillFromProps extends React.HTMLAttributes<HTMLDivElement> {
+interface CreateMenuFormProps extends React.HTMLAttributes<HTMLDivElement> {
   open: boolean;
   setopen: (open: boolean) => void;
   refetch: () => void; // Add this line
   warungs: WarungResponseType[] | undefined;
 }
 
-const CreateBillFrom = ({
+const CreateMenuForm = ({
   className,
   setopen,
   refetch,
   warungs,
   ...rest
-}: CreateBillFromProps) => {
+}: CreateMenuFormProps) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
   const formSchema = createBillSchema;
@@ -240,4 +240,4 @@ const CreateBillFrom = ({
   );
 };
 
-export default CreateBillFrom;
+export default CreateMenuForm;

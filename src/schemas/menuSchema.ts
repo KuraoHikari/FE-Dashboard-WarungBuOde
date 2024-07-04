@@ -64,3 +64,10 @@ export interface FetchMenusParams {
  category?: string;
  available?: boolean;
 }
+
+export interface FetchMenusByWarungIdParams {
+ page: number;
+ limit: number;
+ search?: string;
+ warungId: number;
+}
