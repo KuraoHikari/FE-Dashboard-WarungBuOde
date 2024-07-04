@@ -1,60 +1,60 @@
 import {
- Card,
- CardContent,
- CardDescription,
- CardFooter,
- CardHeader,
- CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 
 import { Button } from "@/components/ui/button";
 
 import {
- DropdownMenu,
- DropdownMenuContent,
- DropdownMenuItem,
- DropdownMenuLabel,
- DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 import {
- Table,
- TableBody,
- TableCell,
- TableHead,
- TableHeader,
- TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 
 import {
- Pagination,
- PaginationContent,
- PaginationItem,
+  Pagination,
+  PaginationContent,
+  PaginationItem,
 } from "@/components/ui/pagination";
 
 import {
- Dialog,
- DialogContent,
- DialogDescription,
- DialogHeader,
- DialogTitle,
- DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 
 import {
- ChevronLeft,
- ChevronRight,
- Eye,
- MoreHorizontal,
- Plus,
- SquareCheckIcon,
- SquareMinusIcon,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  MoreHorizontal,
+  Plus,
+  SquareCheckIcon,
+  SquareMinusIcon,
 } from "lucide-react";
 import {
- Tooltip,
- TooltipContent,
- TooltipProvider,
- TooltipTrigger,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
 } from "@/components/ui/tooltip";
 
 import { Tabs, TabsContent } from "@/components/ui/tabs";
@@ -65,394 +65,443 @@ import { useState } from "react";
 import { BillResponseType } from "@/schemas/billSchema";
 import { Input } from "@/components/ui/input";
 import EditBillForm from "@/components/custom-form/edit-bill-form";
+import CreateBillFrom from "@/components/custom-form/create-bill-form";
+import { useGetAllUserWarung } from "@/hooks/useGetWarungs";
 
 const BillPage = () => {
- const location = useLocation();
- const searchParams = new URLSearchParams(location.search);
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
 
- const [open, setOpen] = useState<boolean>(false);
- const [editOpen, setEditOpen] = useState<boolean>(false);
- const [searchQuery, setSearchQuery] = useState<string>("");
+  const [open, setOpen] = useState<boolean>(false);
+  const [editOpen, setEditOpen] = useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
- const [editOpenMore, setEditOpenMore] = useState<boolean>(false);
+  const [editOpenMore, setEditOpenMore] = useState<boolean>(false);
 
- const [moreBillDetail, setMoreBillDetail] = useState<
-  Omit<BillResponseType, "id" | "total" | "approved" | "createdAt">
- >({
-  customerName: "",
-  status: "",
-  userId: 0,
-  warungId: 0,
-  orders: [],
-  warung: {
-   id: 0,
-   name: "",
-   location: "",
-   userId: 0,
-  },
- });
+  const [moreBillDetail, setMoreBillDetail] = useState<
+    Omit<BillResponseType, "id" | "total" | "approved" | "createdAt">
+  >({
+    customerName: "",
+    status: "",
+    userId: 0,
+    warungId: 0,
+    orders: [],
+    warung: {
+      id: 0,
+      name: "",
+      location: "",
+      userId: 0,
+    },
+  });
 
- const [billEdit, setBillEdit] = useState<
-  Omit<BillResponseType, "warung" | "orders">
- >({
-  id: 0,
-  total: 0,
-  status: "",
-  approved: false,
-  customerName: "",
-  createdAt: "",
-  userId: 0,
-  warungId: 0,
- });
+  const [billEdit, setBillEdit] = useState<
+    Omit<BillResponseType, "warung" | "orders">
+  >({
+    id: 0,
+    total: 0,
+    status: "",
+    approved: false,
+    customerName: "",
+    createdAt: "",
+    userId: 0,
+    warungId: 0,
+  });
 
- const [page, setPage] = useState<number>(
-  parseInt(searchParams.get("page") || "1", 10)
- );
- //ignore
- const [limit] = useState<number>(
-  parseInt(searchParams.get("limit") || "10", 10)
- );
+  const [page, setPage] = useState<number>(
+    parseInt(searchParams.get("page") || "1", 10)
+  );
+  //ignore
+  const [limit] = useState<number>(
+    parseInt(searchParams.get("limit") || "10", 10)
+  );
 
- const { data, isLoading, error, refetch } = useGetAllBillsByWarungId({
-  page: page,
-  limit: limit,
-  search: searchQuery,
-  status: "",
-  approved: undefined,
- });
+  const { data, isLoading, error, refetch } = useGetAllBillsByWarungId({
+    page: page,
+    limit: limit,
+    search: searchQuery,
+    status: "",
+    approved: undefined,
+  });
 
- const previousPage = () => {
-  setPage(page - 1);
- };
+  const { data: warungs } = useGetAllUserWarung({
+    page: 1,
+    limit: 100,
+  });
 
- const nextPage = () => {
-  setPage(page + 1);
- };
+  const previousPage = () => {
+    setPage(page - 1);
+  };
 
- const editBill = (
-  e: React.MouseEvent<HTMLButtonElement | HTMLDivElement>,
-  bill: Omit<BillResponseType, "warung" | "orders">
- ) => {
-  e.preventDefault();
-  setBillEdit(bill);
-  setEditOpen(true);
- };
+  const nextPage = () => {
+    setPage(page + 1);
+  };
 
- const openMoreDetail = (
-  e: React.MouseEvent<HTMLButtonElement | HTMLDivElement>,
-  bill: Omit<BillResponseType, "id" | "total" | "approved" | "createdAt">
- ) => {
-  e.preventDefault();
-  setMoreBillDetail(bill);
-  setEditOpenMore(true);
- };
+  const editBill = (
+    e: React.MouseEvent<HTMLButtonElement | HTMLDivElement>,
+    bill: Omit<BillResponseType, "warung" | "orders">
+  ) => {
+    e.preventDefault();
+    setBillEdit(bill);
+    setEditOpen(true);
+  };
 
- if (error) return "An error has occurred: " + error.message;
+  const openMoreDetail = (
+    e: React.MouseEvent<HTMLButtonElement | HTMLDivElement>,
+    bill: Omit<BillResponseType, "id" | "total" | "approved" | "createdAt">
+  ) => {
+    e.preventDefault();
+    setMoreBillDetail(bill);
+    setEditOpenMore(true);
+  };
 
- return (
-  <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
-   <Tabs defaultValue="all">
-    <TabsContent value="all">
-     <Card x-chunk="dashboard-06-chunk-0">
-      <CardHeader>
-       <Dialog open={open} onOpenChange={setOpen}>
-        <div className="sm:flex items-center gap-2 justify-between">
-         <div>
-          <CardTitle>Bill</CardTitle>
-          <CardDescription className="mt-2">
-           Manage your bill and view their performance.
-          </CardDescription>
+  if (error) return "An error has occurred: " + error.message;
 
-          <Input
-           className="mt-2"
-           type="text"
-           placeholder="Search"
-           value={searchQuery} // Bind the input value to the searchQuery state
-           onChange={(e) => setSearchQuery(e.target.value)}
-          />
-         </div>
-         <DialogTrigger asChild>
-          <Button
-           variant="outline"
-           onClick={(e) => {
-            e.preventDefault();
-            setOpen(true);
-           }}
-           className="w-full mt-2 sm:w-fit sm:mt-0"
-          >
-           <Plus className="h-4 w-4 me-2" />
-           Add Bill
-          </Button>
-         </DialogTrigger>
-        </div>
-        <DialogContent>
-         <DialogHeader>
-          <DialogTitle>Add Bill</DialogTitle>
-          <DialogDescription>Add a new bill to your warung.</DialogDescription>
-         </DialogHeader>
-        </DialogContent>
-       </Dialog>
-      </CardHeader>
-      <CardContent>
-       {!isLoading ? (
-        <Table className=" w-full">
-         <TableHeader>
-          <TableRow>
-           <TableHead>Bill ID</TableHead>
-           <TableHead>Total</TableHead>
-           <TableHead className="hidden md:table-cell">Status</TableHead>
-           <TableHead>Approved</TableHead>
-           <TableHead className="hidden md:table-cell">Customer Name</TableHead>
-           <TableHead className="hidden md:table-cell">Warung</TableHead>
-           <TableHead className="hidden md:table-cell">Orders</TableHead>
-           <TableHead>
-            <span className="sr-only">Actions</span>
-           </TableHead>
-          </TableRow>
-         </TableHeader>
-         <TableBody>
-          {data?.data?.map((bill) => {
-           return (
-            <TableRow key={bill.id}>
-             <TableCell>
-              <div className="flex items-center">
-               <span>{bill.id}</span>
-              </div>
-             </TableCell>
-             <TableCell>
-              <span>{bill.total}</span>
-             </TableCell>
-             <TableCell className="hidden md:table-cell">
-              <Badge>{bill.status}</Badge>
-             </TableCell>
-             <TableCell>
-              {bill.approved ? (
-               <TooltipProvider>
-                <Tooltip>
-                 <TooltipTrigger asChild>
-                  <SquareCheckIcon className="text-green-500 h-8 w-8" />
-                 </TooltipTrigger>
-                 <TooltipContent>
-                  <p>Approved</p>
-                 </TooltipContent>
-                </Tooltip>
-               </TooltipProvider>
-              ) : (
-               <TooltipProvider>
-                <Tooltip>
-                 <TooltipTrigger asChild>
-                  <SquareMinusIcon className="text-red-500 h-8 w-8" />
-                 </TooltipTrigger>
-                 <TooltipContent>
-                  <p>Decline</p>
-                 </TooltipContent>
-                </Tooltip>
-               </TooltipProvider>
-              )}
-             </TableCell>
-             <TableCell className="hidden md:table-cell">
-              <span>{bill.customerName}</span>
-             </TableCell>
-             <TableCell className="hidden md:table-cell">
-              <span>{bill.warung.name}</span>
-             </TableCell>
-             <TableCell className="hidden md:table-cell">
-              <Dialog>
-               <DialogTrigger asChild>
-                <div>
-                 <Button
-                  variant="ghost"
-                  size="sm"
-                  className="hover:bg-gray-100"
-                 >
-                  <Eye size={20} />
-                 </Button>
+  return (
+    <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
+      <Tabs defaultValue="all">
+        <TabsContent value="all">
+          <Card x-chunk="dashboard-06-chunk-0">
+            <CardHeader>
+              <Dialog open={open} onOpenChange={setOpen}>
+                <div className="sm:flex items-center gap-2 justify-between">
+                  <div>
+                    <CardTitle>Bill</CardTitle>
+                    <CardDescription className="mt-2">
+                      Manage your bill and view their performance.
+                    </CardDescription>
+
+                    <Input
+                      className="mt-2"
+                      type="text"
+                      placeholder="Search"
+                      value={searchQuery} // Bind the input value to the searchQuery state
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                  </div>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setOpen(true);
+                      }}
+                      className="w-full mt-2 sm:w-fit sm:mt-0"
+                    >
+                      <Plus className="h-4 w-4 me-2" />
+                      Add Bill
+                    </Button>
+                  </DialogTrigger>
                 </div>
-               </DialogTrigger>
-               <DialogContent>
-                <DialogHeader>
-                 <DialogTitle>Item Orders </DialogTitle>
-
-                 <div>
-                  <Table>
-                   <TableHeader>
-                    <TableRow>
-                     <TableHead>Menu ID</TableHead>
-                     <TableHead>Name</TableHead>
-                     <TableHead>Price</TableHead>
-                     <TableHead>Quantity</TableHead>
-                    </TableRow>
-                   </TableHeader>
-                   <TableBody>
-                    {bill.orders.map((order) => {
-                     return (
-                      <TableRow key={order.id}>
-                       <TableCell>
-                        <span>{order.menuId}</span>
-                       </TableCell>
-                       <TableCell>
-                        <span>{order.menu.title}</span>
-                       </TableCell>
-                       <TableCell>
-                        <span>{order.total}</span>
-                       </TableCell>
-                       <TableCell>
-                        <span>{order.quantity}</span>
-                       </TableCell>
-                      </TableRow>
-                     );
-                    })}
-                   </TableBody>
-                  </Table>
-                 </div>
-                </DialogHeader>
-               </DialogContent>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add Bill</DialogTitle>
+                    <DialogDescription>
+                      Add a new bill to your warung.
+                    </DialogDescription>
+                    <CreateBillFrom
+                      open={open}
+                      setopen={setOpen}
+                      refetch={refetch}
+                      warungs={warungs?.data}
+                    />
+                  </DialogHeader>
+                </DialogContent>
               </Dialog>
-             </TableCell>
+            </CardHeader>
+            <CardContent>
+              {!isLoading ? (
+                <Table className=" w-full">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Bill ID</TableHead>
+                      <TableHead>Total</TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Status
+                      </TableHead>
+                      <TableHead>Approved</TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Customer Name
+                      </TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Warung
+                      </TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Orders
+                      </TableHead>
+                      <TableHead>
+                        <span className="sr-only">Actions</span>
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {data?.data?.map((bill) => {
+                      return (
+                        <TableRow key={bill.id}>
+                          <TableCell>
+                            <div className="flex items-center">
+                              <span>{bill.id}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <span>{bill.total}</span>
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell">
+                            <Badge>{bill.status}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            {bill.approved ? (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <SquareCheckIcon className="text-green-500 h-8 w-8" />
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Approved</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            ) : (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <SquareMinusIcon className="text-red-500 h-8 w-8" />
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Decline</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell">
+                            <span>{bill.customerName}</span>
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell">
+                            <span>{bill.warung.name}</span>
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell">
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <div>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="hover:bg-gray-100"
+                                  >
+                                    <Eye size={20} />
+                                  </Button>
+                                </div>
+                              </DialogTrigger>
+                              <DialogContent>
+                                <DialogHeader>
+                                  <DialogTitle>Item Orders </DialogTitle>
 
-             <TableCell>
-              <DropdownMenu>
-               <DropdownMenuTrigger asChild>
-                <Button aria-haspopup="true" size="icon" variant="ghost">
-                 <MoreHorizontal className="h-4 w-4" />
-                 <span className="sr-only">Toggle menu</span>
-                </Button>
-               </DropdownMenuTrigger>
-               <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <Dialog open={editOpen} onOpenChange={setEditOpen}>
-                 <DialogTrigger asChild>
-                  <DropdownMenuItem
-                   onClick={(e) => {
-                    editBill(e, bill);
-                   }}
-                  >
-                   Edit
-                  </DropdownMenuItem>
-                 </DialogTrigger>
-                 <DialogContent className="sm:max-w-[825px]">
-                  <DialogHeader>
-                   <DialogTitle>Edit Menu</DialogTitle>
-                   <DialogDescription>
-                    Edit your menu information.
-                   </DialogDescription>
-                  </DialogHeader>
-                  <EditBillForm
-                   bill={billEdit}
-                   open={editOpen}
-                   setopen={setEditOpen}
-                   refetch={refetch}
-                  />
-                 </DialogContent>
-                </Dialog>
+                                  <div>
+                                    <Table>
+                                      <TableHeader>
+                                        <TableRow>
+                                          <TableHead>Menu ID</TableHead>
+                                          <TableHead>Name</TableHead>
+                                          <TableHead>Price</TableHead>
+                                          <TableHead>Quantity</TableHead>
+                                        </TableRow>
+                                      </TableHeader>
+                                      <TableBody>
+                                        {bill.orders.map((order) => {
+                                          return (
+                                            <TableRow key={order.id}>
+                                              <TableCell>
+                                                <span>{order.menuId}</span>
+                                              </TableCell>
+                                              <TableCell>
+                                                <span>{order.menu.title}</span>
+                                              </TableCell>
+                                              <TableCell>
+                                                <span>{order.total}</span>
+                                              </TableCell>
+                                              <TableCell>
+                                                <span>{order.quantity}</span>
+                                              </TableCell>
+                                            </TableRow>
+                                          );
+                                        })}
+                                      </TableBody>
+                                    </Table>
+                                  </div>
+                                </DialogHeader>
+                              </DialogContent>
+                            </Dialog>
+                          </TableCell>
 
-                <Dialog open={editOpenMore} onOpenChange={setEditOpenMore}>
-                 <DialogTrigger asChild>
-                  <DropdownMenuItem
-                   onClick={(e) => {
-                    openMoreDetail(e, bill);
-                   }}
-                  >
-                   Open More
-                  </DropdownMenuItem>
-                 </DialogTrigger>
-                 <DialogContent className="sm:max-w-[825px]">
-                  <DialogHeader>
-                   <DialogTitle>
-                    Customer Name: {moreBillDetail.customerName}
-                   </DialogTitle>
-                   <div>
-                    <div>
-                     <p>Warung Name: {moreBillDetail.warung.name}</p>
-                     <p>Status: {moreBillDetail.status}</p>
-                    </div>
-                    <Table>
-                     <TableHeader>
-                      <TableRow>
-                       <TableHead>Name</TableHead>
-                       <TableHead>Price</TableHead>
-                       <TableHead>Quantity</TableHead>
-                      </TableRow>
-                     </TableHeader>
-                     <TableBody>
-                      {moreBillDetail.orders.map((order) => {
-                       return (
-                        <TableRow key={order.id}>
-                         <TableCell>
-                          <span>{order.menu.title}</span>
-                         </TableCell>
-                         <TableCell>
-                          <span>{order.total}</span>
-                         </TableCell>
-                         <TableCell>
-                          <span>{order.quantity}</span>
-                         </TableCell>
+                          <TableCell>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  aria-haspopup="true"
+                                  size="icon"
+                                  variant="ghost"
+                                >
+                                  <MoreHorizontal className="h-4 w-4" />
+                                  <span className="sr-only">Toggle menu</span>
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <Dialog
+                                  open={editOpen}
+                                  onOpenChange={setEditOpen}
+                                >
+                                  <DialogTrigger asChild>
+                                    <DropdownMenuItem
+                                      onClick={(e) => {
+                                        editBill(e, bill);
+                                      }}
+                                    >
+                                      Edit
+                                    </DropdownMenuItem>
+                                  </DialogTrigger>
+                                  <DialogContent className="sm:max-w-[825px]">
+                                    <DialogHeader>
+                                      <DialogTitle>Edit Menu</DialogTitle>
+                                      <DialogDescription>
+                                        Edit your menu information.
+                                      </DialogDescription>
+                                    </DialogHeader>
+                                    <EditBillForm
+                                      bill={billEdit}
+                                      open={editOpen}
+                                      setopen={setEditOpen}
+                                      refetch={refetch}
+                                    />
+                                  </DialogContent>
+                                </Dialog>
+
+                                <Dialog
+                                  open={editOpenMore}
+                                  onOpenChange={setEditOpenMore}
+                                >
+                                  <DialogTrigger asChild>
+                                    <DropdownMenuItem
+                                      onClick={(e) => {
+                                        openMoreDetail(e, bill);
+                                      }}
+                                    >
+                                      Open More
+                                    </DropdownMenuItem>
+                                  </DialogTrigger>
+                                  <DialogContent className="sm:max-w-[825px]">
+                                    <DialogHeader>
+                                      <DialogTitle>
+                                        Customer Name:{" "}
+                                        {moreBillDetail.customerName}
+                                      </DialogTitle>
+                                      <div>
+                                        <div>
+                                          <p>
+                                            Warung Name:{" "}
+                                            {moreBillDetail.warung.name}
+                                          </p>
+                                          <p>Status: {moreBillDetail.status}</p>
+                                        </div>
+                                        <Table>
+                                          <TableHeader>
+                                            <TableRow>
+                                              <TableHead>Name</TableHead>
+                                              <TableHead>Price</TableHead>
+                                              <TableHead>Quantity</TableHead>
+                                            </TableRow>
+                                          </TableHeader>
+                                          <TableBody>
+                                            {moreBillDetail.orders.map(
+                                              (order) => {
+                                                return (
+                                                  <TableRow key={order.id}>
+                                                    <TableCell>
+                                                      <span>
+                                                        {order.menu.title}
+                                                      </span>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                      <span>{order.total}</span>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                      <span>
+                                                        {order.quantity}
+                                                      </span>
+                                                    </TableCell>
+                                                  </TableRow>
+                                                );
+                                              }
+                                            )}
+                                          </TableBody>
+                                        </Table>
+                                      </div>
+                                    </DialogHeader>
+                                  </DialogContent>
+                                </Dialog>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
                         </TableRow>
-                       );
-                      })}
-                     </TableBody>
-                    </Table>
-                   </div>
-                  </DialogHeader>
-                 </DialogContent>
-                </Dialog>
-               </DropdownMenuContent>
-              </DropdownMenu>
-             </TableCell>
-            </TableRow>
-           );
-          })}
-         </TableBody>
-        </Table>
-       ) : (
-        <div>Loading...</div>
-       )}
-      </CardContent>
-      <CardFooter>
-       <div className="text-xs text-muted-foreground">
-        Showing{" "}
-        {data?.data?.length !== 0 ? (
-         <strong>1-{data?.data?.length}</strong>
-        ) : (
-         "0"
-        )}{" "}
-        of <strong>{data?.total}</strong> bill
-       </div>
-       <Pagination>
-        <PaginationContent>
-         <PaginationItem>
-          <Button variant="ghost" onClick={previousPage} disabled={page <= 1}>
-           <ChevronLeft className="h-4 w-4" />
-          </Button>
-         </PaginationItem>
-         {data?.totalPages &&
-          Array.from({ length: data?.totalPages }, (_, index) => (
-           <Button
-            variant={data?.page !== index + 1 ? "ghost" : "outline"}
-            onClick={() => setPage(index + 1)}
-            key={index}
-           >
-            {index + 1}
-           </Button>
-          ))}
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              ) : (
+                <div>Loading...</div>
+              )}
+            </CardContent>
+            <CardFooter>
+              <div className="text-xs text-muted-foreground">
+                Showing{" "}
+                {data?.data?.length !== 0 ? (
+                  <strong>1-{data?.data?.length}</strong>
+                ) : (
+                  "0"
+                )}{" "}
+                of <strong>{data?.total}</strong> bill
+              </div>
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <Button
+                      variant="ghost"
+                      onClick={previousPage}
+                      disabled={page <= 1}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                  </PaginationItem>
+                  {data?.totalPages &&
+                    Array.from({ length: data?.totalPages }, (_, index) => (
+                      <Button
+                        variant={data?.page !== index + 1 ? "ghost" : "outline"}
+                        onClick={() => setPage(index + 1)}
+                        key={index}
+                      >
+                        {index + 1}
+                      </Button>
+                    ))}
 
-         <PaginationItem>
-          <Button
-           variant="ghost"
-           onClick={nextPage}
-           disabled={data?.totalPages ? page >= data?.totalPages : true}
-          >
-           <ChevronRight className="h-4 w-4" />
-          </Button>
-         </PaginationItem>
-        </PaginationContent>
-       </Pagination>
-      </CardFooter>
-     </Card>
-    </TabsContent>
-   </Tabs>
-  </main>
- );
+                  <PaginationItem>
+                    <Button
+                      variant="ghost"
+                      onClick={nextPage}
+                      disabled={
+                        data?.totalPages ? page >= data?.totalPages : true
+                      }
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </main>
+  );
 };
 
 export default BillPage;
