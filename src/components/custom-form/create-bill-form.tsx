@@ -9,12 +9,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from "@/components/ui/form"; /*  */
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import React from "react";
+import React, { useEffect } from "react";
 
 import { Icons } from "../icons";
 import { useToast } from "../ui/use-toast";
@@ -36,22 +36,26 @@ import { WarungResponseType } from "@/schemas/warungSchema";
 
 import { BillResponseType, createBillSchema } from "@/schemas/billSchema";
 import { createBill } from "@/services/billServices";
+import { useGetAllBillsByWarungId } from "@/hooks/useGetBills";
 
-interface CreateMenuFormProps extends React.HTMLAttributes<HTMLDivElement> {
+interface CreateBillFormProps extends React.HTMLAttributes<HTMLDivElement> {
   open: boolean;
   setopen: (open: boolean) => void;
   refetch: () => void; // Add this line
   warungs: WarungResponseType[] | undefined;
 }
 
-const CreateMenuForm = ({
+const CreateBillForm = ({
   className,
   setopen,
   refetch,
   warungs,
   ...rest
-}: CreateMenuFormProps) => {
+}: CreateBillFormProps) => {
   const { toast } = useToast();
+
+  const [warungId, setWarungId] = React.useState(0);
+
   const [isLoading, setIsLoading] = React.useState(false);
   const formSchema = createBillSchema;
   const form = useForm<z.infer<typeof formSchema>>({
@@ -106,6 +110,11 @@ const CreateMenuForm = ({
     setIsLoading(false);
   }
 
+  const onChangeWarungIdValue = (value: string) => {
+    form.setValue("warungId", value);
+    setWarungId(parseInt(value));
+  };
+
   return (
     <div
       className={cn("grid gap-6 overflow-y-auto h-96 p-2", className)}
@@ -127,7 +136,7 @@ const CreateMenuForm = ({
                     <FormItem>
                       <FormLabel>Warung</FormLabel>
                       <Select
-                        onValueChange={field.onChange}
+                        onValueChange={onChangeWarungIdValue}
                         defaultValue={field.value}
                       >
                         <FormControl>
@@ -240,4 +249,4 @@ const CreateMenuForm = ({
   );
 };
 
-export default CreateMenuForm;
+export default CreateBillForm;

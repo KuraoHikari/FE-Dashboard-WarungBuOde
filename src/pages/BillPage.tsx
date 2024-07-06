@@ -62,9 +62,11 @@ import { useGetAllBillsByWarungId } from "@/hooks/useGetBills";
 import { Badge } from "@/components/ui/badge";
 import { useLocation } from "react-router-dom";
 import { useState } from "react";
-import { BillResponseType } from "@/schemas/billSchema";
+import { BillResponseType, OrderType } from "@/schemas/billSchema";
 import { Input } from "@/components/ui/input";
 import EditBillForm from "@/components/custom-form/edit-bill-form";
+import CreateBillForm from "@/components/custom-form/create-bill-form";
+import { useGetAllUserWarung } from "@/hooks/useGetWarungs";
 
 const BillPage = () => {
   const location = useLocation();
@@ -73,6 +75,7 @@ const BillPage = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [editOpen, setEditOpen] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [userCart, setUserCart] = useState<OrderType[] | []>([]);
 
   const [editOpenMore, setEditOpenMore] = useState<boolean>(false);
 
@@ -119,6 +122,11 @@ const BillPage = () => {
     search: searchQuery,
     status: "",
     approved: undefined,
+  });
+
+  const { data: warungs } = useGetAllUserWarung({
+    page: 1,
+    limit: 100,
   });
 
   const previousPage = () => {
@@ -192,6 +200,12 @@ const BillPage = () => {
                       Add a new bill to your warung.
                     </DialogDescription>
                   </DialogHeader>
+                  <CreateBillForm
+                    open={open}
+                    setopen={setOpen}
+                    refetch={refetch}
+                    warungs={warungs?.data}
+                  />
                 </DialogContent>
               </Dialog>
             </CardHeader>
