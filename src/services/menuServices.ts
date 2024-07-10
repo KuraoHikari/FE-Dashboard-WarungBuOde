@@ -80,7 +80,7 @@ export const getWarungMenu = async ({
   [string, FetchMenusByWarungIdParams]
 >): Promise<getAllMenuResponseType> => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_key, { page, limit, search, warungId }] = queryKey;
+  const [_key, { page, limit, search, warungId, available }] = queryKey;
 
   if (warungId === 0 || !warungId) {
     const json: getAllMenuResponseType = {
@@ -96,6 +96,7 @@ export const getWarungMenu = async ({
       page: page.toString(),
       limit: limit.toString(),
       search: search || "",
+      available: available !== undefined ? String(available) : "",
     });
     const response = await baseApi.get(`menu/${warungId}`, {
       searchParams,

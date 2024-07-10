@@ -2,6 +2,12 @@ import { cn } from "@/lib/utils";
 
 import { useForm } from "react-hook-form";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   Form,
   FormControl,
   FormDescription,
@@ -24,6 +30,16 @@ import { isHTTPError } from "@/api/baseApi";
 import { useMutation } from "@tanstack/react-query";
 
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  FilterIcon,
+  MoreHorizontal,
+  Plus,
+  SquareCheckIcon,
+  SquareMinusIcon,
+} from "lucide-react";
 
 import {
   Select,
@@ -36,7 +52,33 @@ import { WarungResponseType } from "@/schemas/warungSchema";
 
 import { BillResponseType, createBillSchema } from "@/schemas/billSchema";
 import { createBill } from "@/services/billServices";
-import { useGetAllBillsByWarungId } from "@/hooks/useGetBills";
+
+import { useLocation } from "react-router-dom";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useGetAllUserMenuByWarungId } from "@/hooks/useGetMenusByWarungId";
 
 interface CreateBillFormProps extends React.HTMLAttributes<HTMLDivElement> {
   open: boolean;
@@ -53,9 +95,17 @@ const CreateBillForm = ({
   ...rest
 }: CreateBillFormProps) => {
   const { toast } = useToast();
-
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const [searchQuery, setSearchQuery] = React.useState<string>("");
   const [warungId, setWarungId] = React.useState(0);
-
+  const [page, setPage] = React.useState<number>(
+    parseInt(searchParams.get("page") || "1", 10)
+  );
+  //ignore
+  const [limit] = React.useState<number>(
+    parseInt(searchParams.get("limit") || "10", 10)
+  );
   const [isLoading, setIsLoading] = React.useState(false);
   const formSchema = createBillSchema;
   const form = useForm<z.infer<typeof formSchema>>({
@@ -114,6 +164,19 @@ const CreateBillForm = ({
     form.setValue("warungId", value);
     setWarungId(parseInt(value));
   };
+
+  const {
+    data,
+    isLoading: isLoadingMenu,
+    error,
+  } = useGetAllUserMenuByWarungId({
+    page,
+    limit,
+    search: searchQuery,
+    available: true,
+    warungId,
+  });
+  console.log("🚀 ~ file: create-bill-form.tsx:129 ~ data:", data);
 
   return (
     <div
@@ -234,6 +297,146 @@ const CreateBillForm = ({
                     </FormItem>
                   )}
                 />
+
+                {!isLoadingMenu ? (
+                  <>
+                    <Table className="hidden md:table w-full">
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="hidden w-[100px] sm:table-cell">
+                            <span className="sr-only">image</span>
+                          </TableHead>
+                          <TableHead>Title</TableHead>
+                          <TableHead>desc</TableHead>
+                          <TableHead>Price</TableHead>
+                          <TableHead>available</TableHead>
+                          <TableHead>category</TableHead>
+                          <TableHead>Warung Name</TableHead>
+                          <TableHead>
+                            <span className="sr-only">Actions</span>
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {data?.data?.map((menu) => {
+                          return (
+                            <TableRow key={menu.id}>
+                              <TableCell className="hidden w-[100px] sm:table-cell">
+                                <Dialog>
+                                  <DialogTrigger asChild>
+                                    <img
+                                      src={menu.image}
+                                      alt={menu.title}
+                                      className="w-10 h-10 rounded-lg"
+                                    />
+                                  </DialogTrigger>
+                                  <DialogContent>
+                                    <DialogHeader>
+                                      <DialogTitle>Menu Image</DialogTitle>
+                                      <DialogDescription>
+                                        <img
+                                          src={menu.image}
+                                          alt={menu.title}
+                                        />
+                                      </DialogDescription>
+                                    </DialogHeader>
+                                  </DialogContent>
+                                </Dialog>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center">
+                                  <span>{menu.title}</span>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <Dialog>
+                                  <DialogTrigger asChild>
+                                    <div>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="hover:bg-gray-100"
+                                      >
+                                        <Eye size={20} />
+                                      </Button>
+                                    </div>
+                                  </DialogTrigger>
+                                  <DialogContent>
+                                    <DialogHeader>
+                                      <DialogTitle>
+                                        Item Description{" "}
+                                      </DialogTitle>
+                                      <DialogDescription>
+                                        {menu.desc}
+                                      </DialogDescription>
+                                    </DialogHeader>
+                                  </DialogContent>
+                                </Dialog>
+                              </TableCell>
+                              <TableCell>
+                                <span>{menu.price}</span>
+                              </TableCell>
+                              <TableCell className="">
+                                {menu.available ? (
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <SquareCheckIcon className="text-green-500 h-8 w-8" />
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>Available</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                ) : (
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <SquareMinusIcon className="text-red-500 h-8 w-8" />
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>Not Available</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <span>{menu.category}</span>
+                              </TableCell>
+                              <TableCell>
+                                <span>{menu.warung.name}</span>
+                              </TableCell>
+                              <TableCell>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button
+                                      aria-haspopup="true"
+                                      size="icon"
+                                      variant="ghost"
+                                    >
+                                      <MoreHorizontal className="h-4 w-4" />
+                                      <span className="sr-only">
+                                        Toggle menu
+                                      </span>
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuLabel>
+                                      Actions
+                                    </DropdownMenuLabel>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </>
+                ) : (
+                  "Loading...."
+                )}
                 <Button className="mt-4" type="submit" disabled={isLoading}>
                   {isLoading && (
                     <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />

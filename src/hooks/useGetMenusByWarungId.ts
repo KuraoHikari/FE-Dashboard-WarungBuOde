@@ -7,9 +7,10 @@ export const useGetAllUserMenuByWarungId = ({
   limit,
   search,
   warungId,
+  available,
 }: FetchMenusByWarungIdParams) => {
   return useQuery({
-    queryKey: ["warung-menus", { page, limit, search, warungId }],
+    queryKey: ["warung-menus", { page, limit, search, warungId, available }],
     queryFn: getWarungMenu,
   });
 };

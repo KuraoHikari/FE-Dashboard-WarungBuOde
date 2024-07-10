@@ -193,7 +193,7 @@ const BillPage = () => {
                     </Button>
                   </DialogTrigger>
                 </div>
-                <DialogContent>
+                <DialogContent className="sm:max-w-[825px]">
                   <DialogHeader>
                     <DialogTitle>Add Bill</DialogTitle>
                     <DialogDescription>
