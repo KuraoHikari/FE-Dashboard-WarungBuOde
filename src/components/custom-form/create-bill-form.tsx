@@ -1,5 +1,13 @@
 import { cn } from "@/lib/utils";
 
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+} from "@/components/ui/pagination";
+
 import { useForm } from "react-hook-form";
 import {
   Tooltip,
@@ -20,7 +28,7 @@ import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import React, { useEffect } from "react";
+import React from "react";
 
 import { Icons } from "../icons";
 import { useToast } from "../ui/use-toast";
@@ -34,9 +42,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Eye,
-  FilterIcon,
-  MoreHorizontal,
-  Plus,
+  MinusSquare,
+  PlusSquare,
   SquareCheckIcon,
   SquareMinusIcon,
 } from "lucide-react";
@@ -64,13 +71,6 @@ import {
 } from "@/components/ui/dialog";
 
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Table,
   TableBody,
   TableCell,
@@ -97,7 +97,9 @@ const CreateBillForm = ({
   const { toast } = useToast();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const [searchQuery, setSearchQuery] = React.useState<string>("");
+  const [userCart, setUserCart] = React.useState<
+    { menuId: number; quantity: number }[] | []
+  >([]);
   const [warungId, setWarungId] = React.useState(0);
   const [page, setPage] = React.useState<number>(
     parseInt(searchParams.get("page") || "1", 10)
@@ -122,7 +124,7 @@ const CreateBillForm = ({
     mutationFn: async (
       data: z.infer<typeof createBillSchema>
     ): Promise<BillResponseType> => {
-      return createBill(data, 1);
+      return createBill(data, warungId);
     },
     onError: async (error) => {
       if (isHTTPError(error)) {
@@ -152,6 +154,54 @@ const CreateBillForm = ({
     },
   });
 
+  function addItemToCart(item: { menuId: number }) {
+    setUserCart((prevCart) => {
+      const itemIndex = prevCart.findIndex(
+        (cartItem) => cartItem.menuId === item.menuId
+      );
+      if (itemIndex !== -1) {
+        const updatedCart = [...prevCart];
+        updatedCart[itemIndex].quantity += 1;
+        return updatedCart;
+      } else {
+        return [...prevCart, { ...item, quantity: 1 }];
+      }
+    });
+  }
+  React.useEffect(() => {
+    form.setValue("orders", userCart);
+  }, [userCart]);
+
+  React.useMemo(() => {
+    setUserCart([]);
+  }, [warungId]);
+
+  function removeItemFromCart(item: { menuId: number }) {
+    setUserCart((prevCart) => {
+      const itemIndex = prevCart.findIndex(
+        (cartItem) => cartItem.menuId === item.menuId
+      );
+      if (itemIndex !== -1) {
+        //if quantity is 1, remove from cart
+        if (prevCart[itemIndex].quantity === 1) {
+          const updatedCart = [...prevCart];
+          updatedCart.splice(itemIndex, 1);
+          return updatedCart;
+        } else {
+          const updatedCart = [...prevCart];
+          updatedCart[itemIndex].quantity -= 1;
+          return updatedCart;
+        }
+      } else {
+        return prevCart;
+      }
+    });
+  }
+
+  function findMenuQty(menuId: number) {
+    return userCart.find((item) => item.menuId === menuId)?.quantity || 0;
+  }
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
 
@@ -165,18 +215,21 @@ const CreateBillForm = ({
     setWarungId(parseInt(value));
   };
 
-  const {
-    data,
-    isLoading: isLoadingMenu,
-    error,
-  } = useGetAllUserMenuByWarungId({
+  const { data, isLoading: isLoadingMenu } = useGetAllUserMenuByWarungId({
     page,
     limit,
-    search: searchQuery,
+    search: "",
     available: true,
     warungId,
   });
-  console.log("🚀 ~ file: create-bill-form.tsx:129 ~ data:", data);
+
+  const previousPage = () => {
+    setPage(page - 1);
+  };
+
+  const nextPage = () => {
+    setPage(page + 1);
+  };
 
   return (
     <div
@@ -300,139 +353,232 @@ const CreateBillForm = ({
 
                 {!isLoadingMenu ? (
                   <>
-                    <Table className="hidden md:table w-full">
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="hidden w-[100px] sm:table-cell">
-                            <span className="sr-only">image</span>
-                          </TableHead>
-                          <TableHead>Title</TableHead>
-                          <TableHead>desc</TableHead>
-                          <TableHead>Price</TableHead>
-                          <TableHead>available</TableHead>
-                          <TableHead>category</TableHead>
-                          <TableHead>Warung Name</TableHead>
-                          <TableHead>
-                            <span className="sr-only">Actions</span>
-                          </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {data?.data?.map((menu) => {
-                          return (
-                            <TableRow key={menu.id}>
-                              <TableCell className="hidden w-[100px] sm:table-cell">
-                                <Dialog>
-                                  <DialogTrigger asChild>
-                                    <img
-                                      src={menu.image}
-                                      alt={menu.title}
-                                      className="w-10 h-10 rounded-lg"
-                                    />
-                                  </DialogTrigger>
-                                  <DialogContent>
-                                    <DialogHeader>
-                                      <DialogTitle>Menu Image</DialogTitle>
-                                      <DialogDescription>
+                    <Card>
+                      <CardContent>
+                        <Table className="w-full">
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className="hidden w-[100px] sm:table-cell">
+                                <span className="sr-only">image</span>
+                              </TableHead>
+                              <TableHead>Title</TableHead>
+                              <TableHead>desc</TableHead>
+                              <TableHead>Price</TableHead>
+                              <TableHead>available</TableHead>
+                              <TableHead>
+                                <span className="sr-only">Add Item</span>
+                              </TableHead>
+                              <TableHead>qty</TableHead>
+                              <TableHead>
+                                <span className="sr-only">Remove Item</span>
+                              </TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {data?.data?.map((menu) => {
+                              return (
+                                <TableRow key={menu.id}>
+                                  <TableCell className="hidden w-[100px] sm:table-cell">
+                                    <Dialog>
+                                      <DialogTrigger asChild>
                                         <img
                                           src={menu.image}
                                           alt={menu.title}
+                                          className="w-10 h-10 rounded-lg"
                                         />
-                                      </DialogDescription>
-                                    </DialogHeader>
-                                  </DialogContent>
-                                </Dialog>
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex items-center">
-                                  <span>{menu.title}</span>
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                <Dialog>
-                                  <DialogTrigger asChild>
-                                    <div>
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="hover:bg-gray-100"
-                                      >
-                                        <Eye size={20} />
-                                      </Button>
+                                      </DialogTrigger>
+                                      <DialogContent>
+                                        <DialogHeader>
+                                          <DialogTitle>Menu Image</DialogTitle>
+                                          <DialogDescription>
+                                            <img
+                                              src={menu.image}
+                                              alt={menu.title}
+                                            />
+                                          </DialogDescription>
+                                        </DialogHeader>
+                                      </DialogContent>
+                                    </Dialog>
+                                  </TableCell>
+                                  <TableCell>
+                                    <div className="flex items-center">
+                                      <span>{menu.title}</span>
                                     </div>
-                                  </DialogTrigger>
-                                  <DialogContent>
-                                    <DialogHeader>
-                                      <DialogTitle>
-                                        Item Description{" "}
-                                      </DialogTitle>
-                                      <DialogDescription>
-                                        {menu.desc}
-                                      </DialogDescription>
-                                    </DialogHeader>
-                                  </DialogContent>
-                                </Dialog>
-                              </TableCell>
-                              <TableCell>
-                                <span>{menu.price}</span>
-                              </TableCell>
-                              <TableCell className="">
-                                {menu.available ? (
-                                  <TooltipProvider>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <SquareCheckIcon className="text-green-500 h-8 w-8" />
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        <p>Available</p>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </TooltipProvider>
-                                ) : (
-                                  <TooltipProvider>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <SquareMinusIcon className="text-red-500 h-8 w-8" />
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        <p>Not Available</p>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </TooltipProvider>
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                <span>{menu.category}</span>
-                              </TableCell>
-                              <TableCell>
-                                <span>{menu.warung.name}</span>
-                              </TableCell>
-                              <TableCell>
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button
-                                      aria-haspopup="true"
-                                      size="icon"
-                                      variant="ghost"
-                                    >
-                                      <MoreHorizontal className="h-4 w-4" />
-                                      <span className="sr-only">
-                                        Toggle menu
-                                      </span>
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                    <DropdownMenuLabel>
-                                      Actions
-                                    </DropdownMenuLabel>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
+                                  </TableCell>
+                                  <TableCell>
+                                    <Dialog>
+                                      <DialogTrigger asChild>
+                                        <div>
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="hover:bg-gray-100"
+                                          >
+                                            <Eye size={20} />
+                                          </Button>
+                                        </div>
+                                      </DialogTrigger>
+                                      <DialogContent>
+                                        <DialogHeader>
+                                          <DialogTitle>
+                                            Item Description{" "}
+                                          </DialogTitle>
+                                          <DialogDescription>
+                                            {menu.desc}
+                                          </DialogDescription>
+                                        </DialogHeader>
+                                      </DialogContent>
+                                    </Dialog>
+                                  </TableCell>
+                                  <TableCell>
+                                    <span>{menu.price}</span>
+                                  </TableCell>
+                                  <TableCell className="">
+                                    {menu.available ? (
+                                      <TooltipProvider>
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
+                                            <SquareCheckIcon className="text-green-500 h-8 w-8" />
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p>Available</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      </TooltipProvider>
+                                    ) : (
+                                      <TooltipProvider>
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
+                                            <SquareMinusIcon className="text-red-500 h-8 w-8" />
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p>Not Available</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      </TooltipProvider>
+                                    )}
+                                  </TableCell>
+                                  <TableCell className="">
+                                    <TooltipProvider>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="hover:bg-gray-100"
+                                            onClick={() =>
+                                              addItemToCart({
+                                                menuId: menu.id,
+                                              })
+                                            }
+                                          >
+                                            <PlusSquare className="h-8 w-8 hover:text-gray-500" />
+                                          </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          <p>Add item to Cart</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </TooltipProvider>
+                                  </TableCell>
+                                  <TableCell>
+                                    <span>{findMenuQty(menu.id)}</span>
+                                  </TableCell>
+                                  <TableCell className="">
+                                    <TooltipProvider>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <Button
+                                            type="button"
+                                            disabled={
+                                              findMenuQty(menu.id) === 0
+                                            }
+                                            variant="ghost"
+                                            size="icon"
+                                            className="hover:bg-gray-100"
+                                            onClick={() =>
+                                              removeItemFromCart({
+                                                menuId: menu.id,
+                                              })
+                                            }
+                                          >
+                                            <MinusSquare className="h-8 w-8 hover:text-gray-500" />
+                                          </Button>
+                                        </TooltipTrigger>
+
+                                        <TooltipContent>
+                                          <p>Remove item to Cart</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </TooltipProvider>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
+                          </TableBody>
+                        </Table>
+                      </CardContent>
+                      <CardFooter>
+                        <div className="text-xs text-muted-foreground">
+                          Showing{" "}
+                          {data?.data?.length !== 0 ? (
+                            <strong>1-{data?.data?.length}</strong>
+                          ) : (
+                            "0"
+                          )}{" "}
+                          of <strong>{data?.total}</strong> menu
+                        </div>
+
+                        <Pagination>
+                          <PaginationContent>
+                            <PaginationItem>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={previousPage}
+                                disabled={page <= 1}
+                              >
+                                <ChevronLeft className="h-4 w-4" />
+                              </Button>
+                            </PaginationItem>
+                            {data?.totalPages &&
+                              Array.from(
+                                { length: data?.totalPages },
+                                (_, index) => (
+                                  <Button
+                                    type="button"
+                                    variant={
+                                      data?.page !== index + 1
+                                        ? "ghost"
+                                        : "outline"
+                                    }
+                                    onClick={() => setPage(index + 1)}
+                                    key={index}
+                                  >
+                                    {index + 1}
+                                  </Button>
+                                )
+                              )}
+
+                            <PaginationItem>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={nextPage}
+                                disabled={
+                                  data?.totalPages
+                                    ? page >= data?.totalPages
+                                    : true
+                                }
+                              >
+                                <ChevronRight className="h-4 w-4" />
+                              </Button>
+                            </PaginationItem>
+                          </PaginationContent>
+                        </Pagination>
+                      </CardFooter>
+                    </Card>
                   </>
                 ) : (
                   "Loading...."

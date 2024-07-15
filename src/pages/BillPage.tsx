@@ -75,7 +75,6 @@ const BillPage = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [editOpen, setEditOpen] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [userCart, setUserCart] = useState<OrderType[] | []>([]);
 
   const [editOpenMore, setEditOpenMore] = useState<boolean>(false);
 
